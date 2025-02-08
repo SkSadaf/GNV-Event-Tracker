@@ -2,9 +2,10 @@
 package database
 
 import (
-    "gorm.io/gorm"
-    "gorm.io/driver/sqlite"
 	"backend/data"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 // DB is the database connection
@@ -12,17 +13,16 @@ var DB *gorm.DB
 
 // InitDB initializes the database connection
 func InitDB() error {
-    var err error
-    DB, err = gorm.Open(sqlite.Open("users.db"), &gorm.Config{})
-    if err != nil {
-        return err
-    }
-    
-    // Migrate the schema, creating the Users table
-    err = DB.AutoMigrate(&data.User{})
-    if err != nil {
-        return err
-    }
+	var err error
+	DB, err = gorm.Open(sqlite.Open("gnv_event_tracker_data.db"), &gorm.Config{})
+	if err != nil {
+		return err
+	}
 
-    return nil
+	err = DB.AutoMigrate(&data.User{}, &data.Event{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
