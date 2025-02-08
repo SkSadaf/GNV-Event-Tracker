@@ -1,12 +1,14 @@
 // src/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './styles/Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const navigate = useNavigate();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -21,6 +23,7 @@ const Login = () => {
 
       if (user) {
         alert(`Welcome ${user.username}!`);
+        navigate('/landing');
       } else {
         alert('Invalid credentials. Please sign up before logging in.');
       }

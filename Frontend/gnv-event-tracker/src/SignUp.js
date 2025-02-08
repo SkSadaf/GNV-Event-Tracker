@@ -6,11 +6,13 @@ const SignUp = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userData = { username, email, password };
     await saveMockData(userData);
+    setMessage('You have successfully signed up!');
     setUsername('');
     setEmail('');
     setPassword('');
@@ -49,6 +51,7 @@ const SignUp = () => {
         </div>
         <button type="submit">Sign Up</button>
       </form>
+      {message && <p className="success-message">{message}</p>}
     </div>
   );}
 

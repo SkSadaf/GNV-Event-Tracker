@@ -17,6 +17,18 @@
       "username": "tst",
       "email": "tst@gmail.com",
       "password": "1234"
+    },
+    {
+      "id": "ffad",
+      "username": "test",
+      "email": "test@gmail.com",
+      "password": "test1234"
+    },
+    {
+      "id": "c8ac",
+      "username": "user3",
+      "email": "user3@gmail.com",
+      "password": "user3"
     }
   ]
 }
