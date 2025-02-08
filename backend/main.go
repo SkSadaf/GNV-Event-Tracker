@@ -25,6 +25,7 @@ func main() {
 	r.GET("/user/:id", api.GetUserByID)
 	r.GET("/GetAllEvents", api.GetAllEvents)
 
+    r.PUT("/editUser/:id", api.EditUserInfo)
 	r.GET("/sqlite-version", getSQLiteVersion)
 
 	r.Run(":8080") // Start the server on port 8080
