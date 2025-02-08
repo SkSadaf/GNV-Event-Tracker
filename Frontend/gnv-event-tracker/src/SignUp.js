@@ -7,11 +7,10 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const userData = { username, email, password };
-    saveMockData(userData);
-    // Reset the form fields
+    await saveMockData(userData);
     setUsername('');
     setEmail('');
     setPassword('');
