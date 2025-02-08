@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { saveMockData } from './utils/mockBackend';
+import './styles/SignUp.css'; 
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
@@ -17,11 +18,11 @@ const SignUp = () => {
   };
 
   return (
-    <div>
+    <div className="signup-container">
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username:</label>
+          <label htmlFor="username">Username: </label>
           <input
             type="text"
             id="username"
@@ -30,7 +31,7 @@ const SignUp = () => {
           />
         </div>
         <div>
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="email">Email: </label>
           <input
             type="email"
             id="email"
@@ -39,7 +40,7 @@ const SignUp = () => {
           />
         </div>
         <div>
-          <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password: </label>
           <input
             type="password"
             id="password"
@@ -50,7 +51,6 @@ const SignUp = () => {
         <button type="submit">Sign Up</button>
       </form>
     </div>
-  );
-};
+  );}
 
 export default SignUp;
