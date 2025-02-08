@@ -7,10 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
-
-var db *gorm.DB
 
 func main() {
 	if err := database.InitDB(); err != nil {
@@ -33,7 +30,7 @@ func main() {
 
 func getSQLiteVersion(c *gin.Context) {
 	var version string
-	row := db.Raw("SELECT sqlite_version();").Row()
+	row := database.DB.Raw("SELECT sqlite_version();").Row()
 	if err := row.Scan(&version); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get SQLite version"})
 		return
