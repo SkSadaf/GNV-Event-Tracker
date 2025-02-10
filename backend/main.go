@@ -16,16 +16,22 @@ func main() {
 
 	r := gin.Default()
 
+	// User APIs
 	r.POST("/addUser", api.AddUser)
-	r.POST("/CreateEvent", api.CreateEvent)
-
 	r.GET("/user/:id", api.GetUserByID)
-	r.GET("/GetAllEvents", api.GetAllEvents)
+	r.PUT("/editUser/:id", api.EditUserInfo)
 
-    r.PUT("/editUser/:id", api.EditUserInfo)
+	// Event APIs
+	r.POST("/CreateEvent", api.CreateEvent)
+	r.GET("/GetAllEvents", api.GetAllEvents)
+	r.PUT("/EditEvent/:id", api.EditEvent)
+	r.DELETE("/DeleteEvent/:id", api.DeleteEvent)
+
+	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
 
-	r.Run(":8080") // Start the server on port 8080
+	// Start the server on port 8080
+	r.Run(":8080")
 }
 
 func getSQLiteVersion(c *gin.Context) {
