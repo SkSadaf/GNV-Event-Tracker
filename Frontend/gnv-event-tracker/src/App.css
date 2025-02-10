@@ -1,29 +1,49 @@
+/* /* App.css */
 .App {
   text-align: center;
+  font-family: 'Arial', sans-serif; /* Choose a font you like */
+  /*background-color: #f4f4f4; /* Subtle background color */
+  background-color: cyan;
+  color: #333; /* Text color */
 }
 
-/* App.css */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #333;
+  background-color: #282c34; /* Darker header color */
   color: #fff;
-  padding: 1rem;
+  padding: 1rem 2rem; /* More padding for a spacious feel */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+h1 { /* App name styling */
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Add a subtle text shadow */
 }
 
 nav ul {
   display: flex;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 nav ul li {
-  margin-left: 1rem;
+  margin-left: 1.5rem; /* Increased spacing */
 }
 
 nav ul li a {
   color: #fff;
   text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease; /* Smooth color transition */
+}
+
+nav ul li a:hover {
+  color: #61dafb; /* Hover effect */
 }
 
 main {
@@ -41,16 +61,7 @@ main {
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+/* Remove the App-header as it's redundant with the header */
 
 .App-link {
   color: #61dafb;
@@ -63,4 +74,113 @@ main {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Styling for the gnv-event-tracker title */
+.gnv-event-tracker {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #f4f4f4; /* Light text on dark background */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* css for main.js */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+.hero {
+  text-align: left;
+  padding: 10px 0;
+  color: #333;
+  background-color: #fff;
+}
+
+.hero img {
+  max-width: 100%;
+  height: auto;
+}
+
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  text-align: justify;
+}
+
+.hero button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #fff;
+  color: #333;
+  border: none;
+  cursor: pointer;
+}
+
+
+
+.features h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: justify;
+
+}
+
+.features p {
+  font-size: 18px;
+  margin-bottom: 40px;
+  text-align: justify;
+
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 40px;
+}
+
+.feature-item img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.feature-item h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-align: justify;
+}
+
+.feature-item p {
+  text-align: justify;
+}
+
+
+.benefits h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.benefits ul {
+  list-style-type: none;
+  padding: 0;
+  text-align: justify;
+}
+
+.benefits li {
+  font-size: 18px;
+  margin-bottom: 10px;
 }
