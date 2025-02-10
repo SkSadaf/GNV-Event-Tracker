@@ -20,6 +20,7 @@ func main() {
 	r.POST("/addUser", api.AddUser)
 	r.GET("/user/:id", api.GetUserByID)
 	r.PUT("/editUser/:id", api.EditUserInfo)
+	r.POST("/LoginUser", api.LoginUser)
 
 	// Event APIs
 	r.POST("/CreateEvent", api.CreateEvent)
