@@ -84,6 +84,59 @@ func EditUserInfo(c *gin.Context) {
 	})
 }
 
+//Delete User info
+func RemoveUser(c *gin.Context) {
+	userID := c.Param("id") // Get the user ID from the URL parameter
+	var user data.User
+
+	// Check if the user exists
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Delete the user
+	if err := database.DB.Delete(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+		return
+	}
+
+	// Return a success message
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User deleted successfully",
+		"user_id": user.ID,
+	})
+}
+
+//Register User
+func RegisterUser(c *gin.Context) {
+    var user data.User
+
+    // Bind the JSON input to the user variable
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+        return
+    }
+
+    // Check if the email already exists
+    if err := database.DB.Where("email = ?", user.Email).First(&data.User{}).Error; err == nil {
+        c.JSON(http.StatusConflict, gin.H{"error": "Email already exists"})
+        return
+    }
+
+    // Save the new user to the database
+    if err := database.DB.Create(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+        return
+    }
+
+    // Return success response
+    c.JSON(http.StatusCreated, gin.H{
+        "message": "User registered successfully",
+        "user_id": user.ID,
+    })
+}
+
 // LoginUser handles user login
 func LoginUser(c *gin.Context) {
 	var loginData struct {
