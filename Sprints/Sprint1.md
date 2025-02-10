@@ -18,7 +18,7 @@
 14. **As a registered user**, I want to be able to form private groups with other users to chat about upcoming events and connect with them.
 15. **As a user**, I want to be able to indicate if I’m planning on going to an event to let my friends know that I will be attending. For those I’m not friends with, this will also just add to the total number of people attending the event so myself and all other users can see how many people plan on going.
 16. **As a user**, I want to be able to create daily/weekly itineraries based on my event schedule so that I can plan my day/week accordingly.
-17. **As a user**, I can reset/change my password with a link if I forget it or want to update, and my credentials should be updated.
+17. **As a user**, I can reset/change my password with a link if I forget it or want to update it, and my credentials should be updated.
 
 ---
 
