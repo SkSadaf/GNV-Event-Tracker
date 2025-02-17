@@ -29,6 +29,24 @@
       "username": "user3",
       "email": "user3@gmail.com",
       "password": "user3"
+    },
+    {
+      "id": "1cdb",
+      "username": "user4",
+      "email": "user4@gmail.com",
+      "password": "user41234"
+    },
+    {
+      "id": "f5df",
+      "username": "user5",
+      "email": "user5@gmail.com",
+      "password": "1234"
+    },
+    {
+      "id": "2a30",
+      "username": "user6",
+      "email": "user6@gmail.com",
+      "password": "12345"
     }
   ]
 }
