@@ -7,7 +7,10 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require github.com/mattn/go-sqlite3 v1.14.24 // indirect
+require (
+	github.com/gin-contrib/cors v1.7.3 // indirect
+	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.12.8 // indirect

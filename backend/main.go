@@ -6,6 +6,7 @@ import (
 	"backend/database"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,18 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	// CORS configuration
+	corsConfig := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Replace with your frontend origin
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * 3600, // Cache preflight response for 12 hours
+	}
+
+	r.Use(cors.New(corsConfig))
 
 	// User APIs
 	r.POST("/addUser", api.AddUser)
