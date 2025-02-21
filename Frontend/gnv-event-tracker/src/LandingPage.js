@@ -1,19 +1,15 @@
-// src/LandingPage.js
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-//import Dashboard from './Dashboard';
-//import MapPage from 'src/MapPage';
-//import MapPag from 'src/MapPag';
-//import EventsPage from './EventsPage';
-//import './styles/LandingPage.css';
+import HeaderLanding from './HeaderLanding';
+import MapPage from './MapPage';
 
 const LandingPage = () => {
   return (
     <div>
+      <HeaderLanding /> {/* Use HeaderLanding here */}
+      {/* Main content for the landing page can go here */}
       <Routes>
-        {/* <Route path="dashboard" element={<Dashboard />} />}
-        {/* <Route path="map" element={<MapPag />} /> */}
-        {/*<Route path="events" element={<EventsPage />} /> */}
+        <Route path="map" element={<MapPage />} /> {/* Example Route for Map */}
       </Routes>
     </div>
   );
