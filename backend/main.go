@@ -4,6 +4,7 @@ package main
 import (
 	"backend/api"
 	"backend/database"
+	"backend/scraper"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -11,9 +12,15 @@ import (
 )
 
 func main() {
+
+	// Example scraping function call
+	// url := "https://www.visitgainesville.com/event/silver-linings-celebrating-the-spelman-art-collection-exhibition/"
+
 	if err := database.InitDB(); err != nil {
 		panic("Failed to connect to database")
 	}
+
+	scraper.ScrapeVisitGainesville()
 
 	r := gin.Default()
 
@@ -48,6 +55,7 @@ func main() {
 
 	// Start the server on port 8080
 	r.Run(":8080")
+
 }
 
 func getSQLiteVersion(c *gin.Context) {
