@@ -2,7 +2,6 @@ package database
 
 import (
 	"backend/data"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -18,7 +17,7 @@ func InitDB() error {
 		return err
 	}
 
-	err = DB.AutoMigrate(&data.User{}, &data.Event{})
+	err = DB.AutoMigrate(&data.User{}, &data.Event{}, &data.Organizer{})
 	if err != nil {
 		return err
 	}
