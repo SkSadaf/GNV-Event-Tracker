@@ -16,9 +16,8 @@ type Event struct {
 	Category       string    `json:"category"`               // Category of the event
 	Tags           []string  `json:"tags" gorm:"type:text"`  // List of tags
 	Cost           float64   `json:"cost"`                   // Cost of the event
-	Comments       []string  `json:"comments" gorm:"type:text"` // List of comments
+	Comments       []Comment `json:"comments" gorm:"-"`               // List of comments
 	Rating         float64   `json:"rating"`                 // Event rating
 	Active         bool      `json:"active"`                 // Is the event active
 	GoogleMapsLink string    `json:"google_maps_link"`       // Google Maps directions link
 }
-
