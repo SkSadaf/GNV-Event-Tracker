@@ -47,6 +47,7 @@ func main() {
 	// Event APIs
 	r.POST("/CreateEvent", api.CreateEvent)
 	r.GET("/GetAllEvents", api.GetAllEvents)
+	r.GET("/GetEvent/:id", api.GetEventByID)
 	r.PUT("/EditEvent/:id", api.EditEvent)
 	r.DELETE("/DeleteEvent/:id", api.DeleteEvent)
 

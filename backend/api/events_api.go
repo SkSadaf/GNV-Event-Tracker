@@ -3,9 +3,12 @@ package api
 import (
 	"backend/data"
 	"backend/database"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gopkg.in/gomail.v2"
+	"gorm.io/gorm"
 )
 
 // AddEvent handles adding a new event
@@ -39,6 +42,25 @@ func GetAllEvents(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, events)
+}
+
+// GetEventByID retrieves a single event by its ID
+func GetEventByID(c *gin.Context) {
+	id := c.Param("id") // Get the event ID from the URL parameter
+
+	var event data.Event
+
+	// Find the event by ID
+	if err := database.DB.First(&event, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
+		return
+	}
+
+	c.JSON(http.StatusOK, event)
 }
 
 // UpdateEvent handles updating an existing event
