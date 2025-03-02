@@ -43,6 +43,6 @@
   },
   "devDependencies": {
     "@cypress/react": "^9.0.0",
-    "webpack": "^5.97.1"
+    "webpack": "^5.98.0"
   }
 }
