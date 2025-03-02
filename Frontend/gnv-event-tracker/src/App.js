@@ -9,12 +9,15 @@ import LandingPage from './LandingPage';
 import MapPage from './MapPage';
 import Dashboard from './Dashboard';
 import AllEvents from './AllEvents';
+import EventDetails from './EventDetails';
+import { UserProvider } from './UserContext';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
     <Router>
+      <UserProvider>
       <div>
       <Routes>
           {/* <Route path="/landing/*" element={<LandingPage />} /> */}
@@ -33,6 +36,7 @@ function App() {
           <Route path="/events/:eventId" element={<EventDetails />} />
         </Routes>
       </div>
+      </UserProvider>
     </Router>
   );
 }
