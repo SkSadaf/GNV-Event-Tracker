@@ -31,35 +31,51 @@
 
 // export default AllEvents;
 
+
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './styles/AllEvents.css';
 
 const AllEvents = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+
+  // Replace with your actual API URL
+  const API_URL = 'http://localhost:8080/GetAllEvents';
 
   useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(
+          `${API_URL}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              // Add any other necessary headers, such as authentication
+            },
+          }
+        );
+        
+        setEvents(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setError('An error occurred while fetching events. Please try again later.');
+        setLoading(false);
+      }
+    };
+
     fetchEvents();
   }, []);
 
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch('/api/events');
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      const data = await response.json();
-      setEvents(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
+  if (loading) {
+    return <div>Loading events...</div>;
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   return (
     <div className="all-events">
