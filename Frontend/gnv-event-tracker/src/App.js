@@ -21,6 +21,7 @@ function App() {
           <Route path="/dashboard" element={<HeaderLanding />} />
           <Route path="*" element={<Header />} />
           <Route path="/events" element={<HeaderLanding />} />
+          <Route path="/events/:eventId" element={<HeaderLanding />} />
         </Routes>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
@@ -29,6 +30,7 @@ function App() {
           <Route path="/map" element={<MapPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/events" element={<AllEvents />} />
+          <Route path="/events/:eventId" element={<EventDetails />} />
         </Routes>
       </div>
     </Router>
