@@ -11,12 +11,14 @@ import Dashboard from './Dashboard';
 import AllEvents from './AllEvents';
 import EventDetails from './EventDetails';
 import { UserProvider } from './UserContext';
+import { AuthProvider } from './AuthContext';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
     <Router>
+      <AuthProvider>
       <UserProvider>
       <div>
       <Routes>
@@ -37,6 +39,7 @@ function App() {
         </Routes>
       </div>
       </UserProvider>
+      </AuthProvider>
     </Router>
   );
 }
