@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
 )
 
@@ -184,11 +183,6 @@ func MapUserToEvent(c *gin.Context) {
 		return
 	}
 
-	// Send email confirmation after successful mapping
-	if err := sendEmail(user.Email); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email confirmation"})
-		return
-	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User successfully mapped to event"})
 }
@@ -214,24 +208,4 @@ func GetRegisteredEvents(c *gin.Context) {
 	// Return the list of events
 	c.JSON(http.StatusOK, events)
 }
-
-//EMAIL CONFIRMATION
-
-func sendEmail(to string) error {
-	m := gomail.NewMessage()
-	m.SetHeader("From", "noreply@example.com")
-	m.SetHeader("To", to)
-	m.SetHeader("Subject", "Event Registration Confirmation")
-	m.SetBody("text/plain", "Thank you for registering for the event!")
-
-	// Set up the MailHog SMTP server
-	d := gomail.NewDialer("localhost", 1025, "", "")
-
-	// Send the email
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-	return nil
-}
-
 ///////////////////////////////////////////////////////////////

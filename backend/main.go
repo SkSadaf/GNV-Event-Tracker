@@ -55,6 +55,7 @@ func main() {
 	r.GET("/user/:id/GetUserRegisteredEvents", api.GetRegisteredEvents)
 	r.POST("/createOrganizer", api.CreateOrganizer)
 	r.DELETE("/deleteOrganizer/:id", api.DeleteOrganizer)
+	r.POST("/loginOrganizer", api.LoginOrganizer)
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)

@@ -19,7 +19,7 @@ import (
 
 func setupTestDB() *gorm.DB {
 	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	db.AutoMigrate(&data.Event{}, &data.Comment{})
+	db.AutoMigrate(&data.Event{}, &data.Comment{}, &data.User{})
 	return db
 }
 
@@ -208,4 +208,83 @@ func TestAddCommentToEvent(t *testing.T) {
 	db.First(&dbComment)
 	assert.Equal(t, comment.Content, dbComment.Content)
 	assert.Equal(t, event.ID, dbComment.EventID)
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+func TestMapUserToEvent_Success(t *testing.T) {
+	// Setup
+	gin.SetMode(gin.TestMode)
+	db := setupTestDB()
+	database.DB = db
+
+	// Create a test user and event
+	user := data.User{Name: "Test User", Email: "test@example.com"}
+	event := data.Event{Name: "Test Event"}
+	db.Create(&user)
+	db.Create(&event)
+
+	// Prepare the request body
+	body := map[string]uint{"user_id": user.ID, "event_id": event.ID}
+	bodyJSON, _ := json.Marshal(body)
+
+	// Create a request
+	req, _ := http.NewRequest(http.MethodPost, "/mapUserToEvent", bytes.NewBuffer(bodyJSON))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Create a response recorder
+	w := httptest.NewRecorder()
+
+	// Create a Gin context
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Call the function
+	api.MapUserToEvent(c)
+
+	// Check the response
+	assert.Equal(t, http.StatusOK, w.Code)
+	var response map[string]any
+	json.Unmarshal(w.Body.Bytes(), &response)
+	assert.Equal(t, "User successfully mapped to event", response["message"])
+
+	// Verify that the user is associated with the event
+	var dbEvent data.Event
+	db.Preload("Users").First(&dbEvent, event.ID)
+	assert.Equal(t, 1, len(dbEvent.Users))
+	assert.Equal(t, user.ID, dbEvent.Users[0].ID)
+}
+
+func TestGetRegisteredEvents_Success(t *testing.T) {
+	// Setup
+	gin.SetMode(gin.TestMode)
+	db := setupTestDB()
+	database.DB = db
+
+	// Create a test user and event
+	user := data.User{Name: "Test User", Email: "test@example.com"}
+	event := data.Event{Name: "Test Event"}
+	db.Create(&user)
+	db.Create(&event)
+	db.Model(&event).Association("Users").Append(&user) // Map user to event
+
+	// Create a request
+	req, _ := http.NewRequest(http.MethodGet, "/user/"+strconv.FormatUint(uint64(user.ID), 10)+"/GetUserRegisteredEvents", nil)
+
+	// Create a response recorder
+	w := httptest.NewRecorder()
+
+	// Create a Gin context
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Call the function
+	api.GetRegisteredEvents(c)
+
+	// Check the response
+	assert.Equal(t, http.StatusOK, w.Code)
+	var events []data.Event
+	json.Unmarshal(w.Body.Bytes(), &events)
+	assert.Len(t, events, 1)
+	assert.Equal(t, event.Name, events[0].Name)
 }
