@@ -8,7 +8,6 @@ const AllEvents = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Replace with your actual API URL
   const API_URL = 'http://localhost:8080/GetAllEvents';
 
   useEffect(() => {
@@ -19,7 +18,6 @@ const AllEvents = () => {
           {
             headers: {
               'Content-Type': 'application/json',
-              // Add any other necessary headers, such as authentication
             },
           }
         );
