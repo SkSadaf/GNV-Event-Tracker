@@ -43,6 +43,7 @@ func main() {
 	r.DELETE("/users/:id", api.RemoveUser)
 	r.POST("/register", api.RegisterUser)
 	r.POST("/LoginUser", api.LoginUser)
+	r.POST("/logout/:id", api.LogoutUser)
 
 	// Event APIs
 	r.POST("/CreateEvent", api.CreateEvent)
@@ -50,6 +51,10 @@ func main() {
 	r.GET("/GetEvent/:id", api.GetEventByID)
 	r.PUT("/EditEvent/:id", api.EditEvent)
 	r.DELETE("/DeleteEvent/:id", api.DeleteEvent)
+	r.POST("/mapUserToEvent", api.MapUserToEvent)
+	r.GET("/user/:id/GetUserRegisteredEvents", api.GetRegisteredEvents)
+	r.POST("/createOrganizer", api.CreateOrganizer)
+	r.DELETE("/deleteOrganizer/:id", api.DeleteOrganizer)
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
