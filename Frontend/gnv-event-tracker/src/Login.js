@@ -9,7 +9,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setUserId } = useUser();
+  // const { setUserId } = useUser();
   
   const API_URL = 'http://localhost:8080/LoginUser';
 
@@ -29,12 +29,10 @@ const Login = () => {
         }
       );
       
-      // Assuming your backend returns the username upon successful login
       const username = response.data.name;
       const id = response.data.user_id;
 
-      // Assuming the API returns user id and name
-      setUserId(id);
+      // setUserId(id);
       console.log("UserId set in Login:", id);
 
       alert(`Welcome ${username}!`);

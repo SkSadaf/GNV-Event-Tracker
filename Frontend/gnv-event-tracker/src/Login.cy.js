@@ -1,18 +1,3 @@
-// import React from 'react'
-// import Login from './Login'
-// import { BrowserRouter as Router } from 'react-router-dom';
-
-// describe('<Login />', () => {
-//   it('renders', () => {
-//     cy.mount(
-//       <Router>
-//         <Login />
-//       </Router>
-//     )
-//   })
-// })
-
-
 import React from 'react';
 import Login from './Login';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -56,20 +41,6 @@ describe('<Login />', () => {
     cy.get('button[type="submit"]').should('have.text', 'Logging in...');
   });  
 
-  it('handles login error', () => {
-    cy.intercept('POST', 'http://localhost:8080/LoginUser', {
-      statusCode: 401,
-      body: { error: 'Invalid credentials' },
-    }).as('loginRequest');
-
-    cy.get('input[type="email"]').type('test@example.com');
-    cy.get('input[type="password"]').type('wrongpassword');
-    cy.get('button[type="submit"]').click();
-
-    cy.wait('@loginRequest');
-    cy.get('.error-message').should('have.text', 'Invalid credentials');
-  });
-
   it('handles successful login', () => {
     const navigate = cy.stub().as('navigate');
     cy.stub(router, 'useNavigate').returns(navigate);
@@ -93,6 +64,20 @@ describe('<Login />', () => {
     // cy.get('@navigate').should('have.been.calledWith', '/landing');
   });
 
+  it('handles login error', () => {
+    cy.intercept('POST', 'http://localhost:8080/LoginUser', {
+      statusCode: 401,
+      body: { error: 'Invalid credentials' },
+    }).as('loginRequest');
+
+    cy.get('input[type="email"]').type('test@example.com');
+    cy.get('input[type="password"]').type('wrongpassword');
+    cy.get('button[type="submit"]').click();
+
+    cy.wait('@loginRequest');
+    cy.get('.error-message').should('have.text', 'Invalid credentials');
+  });
+  
   // it('handles network error', () => {
   //   cy.intercept('POST', 'http://localhost:8080/LoginUser', {
   //     forceNetworkError: true,
