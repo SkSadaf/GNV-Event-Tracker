@@ -4,7 +4,9 @@ import (
 	"backend/data"
 	"backend/database"
 	"errors"
+	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
@@ -33,7 +35,6 @@ func CreateEvent(c *gin.Context) {
 		"event_id": event.ID,
 	})
 }
-
 
 // GetAllEvents retrieves all events
 func GetAllEvents(c *gin.Context) {
@@ -68,21 +69,27 @@ func GetEventByID(c *gin.Context) {
 
 // UpdateEvent handles updating an existing event
 func EditEvent(c *gin.Context) {
-	var event data.Event
 	id := c.Param("id")
-
-	if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+	var event data.Event
+	if err := database.DB.First(&event, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Event not found"})
 		return
 	}
 
-	if err := c.ShouldBindJSON(&event); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+	var updatedEvent data.Event
+	if err := c.ShouldBindJSON(&updatedEvent); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input"})
 		return
 	}
+
+	// Update the fields of the event
+	event.Name = updatedEvent.Name
+	event.Description = updatedEvent.Description
+	event.Date = updatedEvent.Date
+	event.Location = updatedEvent.Location
 
 	if err := database.DB.Save(&event).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update event"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update event"})
 		return
 	}
 
@@ -111,6 +118,38 @@ func DeleteEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Event deleted successfully"})
 }
 
+// Add comment to event
+func AddCommentToEvent(c *gin.Context) {
+	var comment data.Comment
+	id := c.Param("id")
+
+	// Find the event by ID
+	var event data.Event
+	if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
+		log.Printf("Error finding event: %v", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	// Bind the comment from the request body
+	if err := c.ShouldBindJSON(&comment); err != nil {
+		log.Printf("Error binding JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+		return
+	}
+
+	// Associate the comment with the event
+	comment.EventID = event.ID
+
+	// Save the comment to the database
+	if err := database.DB.Create(&comment).Error; err != nil {
+		log.Printf("Error saving comment: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add comment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Comment added successfully"})
+}
 
 func MapUserToEvent(c *gin.Context) {
 	var input struct {
@@ -154,7 +193,6 @@ func MapUserToEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User successfully mapped to event"})
 }
 
-
 // GetRegisteredEvents retrieves all events a user is registered for
 func GetRegisteredEvents(c *gin.Context) {
 	userID := c.Param("id") // Get the user ID from the URL parameters
@@ -176,7 +214,6 @@ func GetRegisteredEvents(c *gin.Context) {
 	// Return the list of events
 	c.JSON(http.StatusOK, events)
 }
-
 
 //EMAIL CONFIRMATION
 
