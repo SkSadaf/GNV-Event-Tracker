@@ -1,4 +1,4 @@
-package api_test
+package api_tests
 
 import (
 	"bytes"
@@ -18,7 +18,6 @@ import (
 	// "gorm.io/driver/sqlite"
 	// "gorm.io/gorm"
 )
-
 
 func setupRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
@@ -58,8 +57,6 @@ func TestAddUser_Success(t *testing.T) {
 	}
 }
 
-
-
 func TestAddUser_BadRequest(t *testing.T) {
 	database.DB = initTestDB() // Use an in-memory database
 	router := setupRouter()
@@ -77,7 +74,6 @@ func TestAddUser_BadRequest(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, res.Code)
 	}
 }
-
 
 func TestAddUser_EmailConflict(t *testing.T) {
 	database.DB = initTestDB() // Use an in-memory database
@@ -101,8 +97,6 @@ func TestAddUser_EmailConflict(t *testing.T) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 func TestGetUserByID_Success(t *testing.T) {
 	database.DB = initTestDB() // Use an in-memory database
@@ -155,4 +149,3 @@ func TestGetUserByID_NotFound(t *testing.T) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-
