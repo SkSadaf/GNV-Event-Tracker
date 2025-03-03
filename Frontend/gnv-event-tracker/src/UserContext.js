@@ -1,10 +1,22 @@
-// src/UserContext.js
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [userId, setUserId] = useState(null);
+  // Initialize from localStorage or default to null
+  const [userId, setUserId] = useState(() => {
+    const savedUserId = localStorage.getItem('userId');
+    return savedUserId ? savedUserId : null;
+  });
+
+  // Store userId in localStorage whenever it changes
+  useEffect(() => {
+    if (userId) {
+      localStorage.setItem('userId', userId);
+    } else {
+      localStorage.removeItem('userId');
+    }
+  }, [userId]);
 
   return (
     <UserContext.Provider value={{ userId, setUserId }}>
@@ -13,4 +25,6 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-export const useUser = () => useContext(UserContext);
+export const useUser = () => {
+  return useContext(UserContext);
+};

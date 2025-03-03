@@ -17,9 +17,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
+    <UserProvider>
     <Router>
       <AuthProvider>
-      <UserProvider>
       <div>
       <Routes>
           {/* <Route path="/landing/*" element={<LandingPage />} /> */}
@@ -38,9 +38,9 @@ function App() {
           <Route path="/events/:eventId" element={<EventDetails />} />
         </Routes>
       </div>
-      </UserProvider>
       </AuthProvider>
     </Router>
+    </UserProvider>
   );
 }
 
