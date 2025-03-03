@@ -198,7 +198,11 @@ func LogoutUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Logout successful",
+		"user_id": user.ID,
+		"name":    user.Name,
+	})
 }
 
 
