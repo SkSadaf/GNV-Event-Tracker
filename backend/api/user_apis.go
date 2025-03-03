@@ -16,6 +16,12 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
+	// Validate mandatory fields
+	if user.Email == "" || user.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email and password are required"})
+		return
+	}
+
 	// Check if the email already exists
 	if err := database.DB.Where("email = ?", user.Email).First(&user).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Email already exists"})
@@ -34,6 +40,7 @@ func AddUser(c *gin.Context) {
 		"user_id": user.ID,
 	})
 }
+
 
 // getUserByID retrieves a user by their ID
 func GetUserByID(c *gin.Context) {
@@ -160,9 +167,41 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	// Set the logged_in flag to true
+	user.LoggedIn = true
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update login status"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"user_id": user.ID,
-		"name": user.Name,
+		"name":    user.Name,
 	})
 }
+
+// LogoutUser handles user logout
+func LogoutUser(c *gin.Context) {
+	userID := c.Param("id") // Assuming user ID is passed in the URL
+
+	var user data.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Set the logged_in flag to false
+	user.LoggedIn = false
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update logout status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
+}
+
+
+
+
+

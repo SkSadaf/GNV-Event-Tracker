@@ -5,7 +5,6 @@ import (
 	"backend/database"
 	"errors"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
@@ -19,6 +18,9 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
+	// Set the Active flag to true by default
+	event.Active = true
+
 	// Create the event
 	if err := database.DB.Create(&event).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
@@ -31,6 +33,7 @@ func CreateEvent(c *gin.Context) {
 		"event_id": event.ID,
 	})
 }
+
 
 // GetAllEvents retrieves all events
 func GetAllEvents(c *gin.Context) {
@@ -107,3 +110,91 @@ func DeleteEvent(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Event deleted successfully"})
 }
+
+
+func MapUserToEvent(c *gin.Context) {
+	var input struct {
+		UserID  uint `json:"user_id" binding:"required"`
+		EventID uint `json:"event_id" binding:"required"`
+	}
+
+	// Bind JSON input to the struct
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	var user data.User
+	var event data.Event
+
+	// Check if the user exists
+	if err := database.DB.First(&user, input.UserID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Check if the event exists
+	if err := database.DB.First(&event, input.EventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	// Associate the user with the event
+	if err := database.DB.Model(&event).Association("Users").Append(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to map user to event"})
+		return
+	}
+
+	// Send email confirmation after successful mapping
+	if err := sendEmail(user.Email); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email confirmation"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User successfully mapped to event"})
+}
+
+
+// GetRegisteredEvents retrieves all events a user is registered for
+func GetRegisteredEvents(c *gin.Context) {
+	userID := c.Param("id") // Get the user ID from the URL parameters
+
+	var user data.User
+	// Find the user by ID
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	var events []data.Event
+	// Retrieve events associated with the user by joining the mapping table
+	if err := database.DB.Model(&user).Association("Events").Find(&events); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve events"})
+		return
+	}
+
+	// Return the list of events
+	c.JSON(http.StatusOK, events)
+}
+
+
+//EMAIL CONFIRMATION
+
+func sendEmail(to string) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", "noreply@example.com")
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", "Event Registration Confirmation")
+	m.SetBody("text/plain", "Thank you for registering for the event!")
+
+	// Set up the MailHog SMTP server
+	d := gomail.NewDialer("localhost", 1025, "", "")
+
+	// Send the email
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+	return nil
+}
+
+///////////////////////////////////////////////////////////////
