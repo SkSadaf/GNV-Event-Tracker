@@ -1,4 +1,4 @@
-<h1>Sprint 2</h1>
+<h1>Sprint 2 Report</h1>
 
 <h2>Tasks Completed During Sprint 2</h2>
 <ul>
@@ -343,3 +343,6 @@ cd backend/api/tests
 go test -v
 
 
+<h2>Sprint 2 Video Link</h2>
+
+[GNV Event Tracker Sprint 2 Video](https://drive.google.com/file/d/1i5x6FthFGpoSlJwf9lf73ehOoZy7Kqya/view?usp=sharing)
