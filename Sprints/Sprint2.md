@@ -127,7 +127,21 @@ localhost:8080/GetEvent/{event.ID}
 
 ![image](https://github.com/user-attachments/assets/e8ff8c7b-9bf9-423c-b153-3690feb57ae0)
 
-**6. CreateOrganizer API**
+**6. AddCommentToEvent API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/events/{event.ID}/comments
+
+![image](https://github.com/user-attachments/assets/9d7fdf2f-49ac-47c3-8104-35b23944a708)
+
+**Sample Response**
+
+![image](https://github.com/user-attachments/assets/a039ef5b-27d3-45d7-ac86-4195686667b8)
+
+**7. CreateOrganizer API**
 
 **Request Method:**
 POST
@@ -141,7 +155,7 @@ localhost:8080/createOrganizer
 
 ![image](https://github.com/user-attachments/assets/0550833b-6d43-4aeb-97c5-54fff2c64518)
 
-**7. DeleteOrganizer API**
+**8. DeleteOrganizer API**
 
 **Request Method:**
 DEL
@@ -155,13 +169,19 @@ localhost:8080/deleteOrganizer/{event.ID}
 
 ![image](https://github.com/user-attachments/assets/7d19e2ab-2a4f-4f77-8271-997b9c0f7f18)
 
-**8. LoginOrganizer API**
+**9. LoginOrganizer API**
 
 **Request Method:**
 POST
 
 **URL:**
 localhost:8080/loginOrganizer
+
+![image](https://github.com/user-attachments/assets/e826592e-c3da-4dc3-82d1-fa26e6561afb)
+
+**Sample Response**
+
+![image](https://github.com/user-attachments/assets/1af6fdad-66f7-4e33-bf88-8ca65035c93c)
 
 <h3>Backend Unit Tests</h3>
 <ul>
