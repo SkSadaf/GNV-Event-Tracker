@@ -7,6 +7,41 @@
   <li>Implemented Cypress tests for frontend</li>
   <li>Developed a web scraper for collecting event data</li>
 </ul>
+<h2>Frontend</h2>
+
+<h3>Tasks Completed</h3>
+<ul>
+  <li>Integrated SignUp Functionality with Go Backend API</li>
+  <li>Integrated Login Functionality with Go Backend API</li>
+  <li>Created Dashboard Page</li>
+  <li>Created All Events page</li>
+  <li>Created page for each event</li>
+  <li>Implemented logout functionality</li>
+  <li>Implemented Event Registration functionality</li>
+  <li>Integrated All Events Display with Go Backend API</li>
+  <li>Integrated Dashboard functionality with Go Backend API</li>
+  <li>Implemented Cypress Tests for SignUp Page</li>
+  <li>Implemented Cypress Tests for LoginPage</li>
+  <li>Implemented Cypress Tests for Homepage</li>
+  <li>Implemented Cypress tests for Dashboard</li>
+  <li>Implemented Cypress Tests for All Events page</li>
+  <li>Integrated Logout functionality with Go Backend API</li>
+</ul>
+
+<h3>List unit tests and Cypress test for frontend</h3>
+
+<h4>Unit tests:</h4>
+<ul>
+<li>Login page</li>
+<li>SignUp page</li>
+</ul>
+
+<h4>Cypress e2e tests:</h4>
+<ul>
+<li>Homepage</li>
+<li>Dashboard</li>
+<li>All Events page</li>
+</ul>
 
 <h2>Backend</h2>
 
@@ -149,4 +184,4 @@ cd backend/api/tests
 
 go test -v
 
-<h2>Frontend</h2>
+
