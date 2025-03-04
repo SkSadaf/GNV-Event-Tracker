@@ -56,6 +56,12 @@
 ![allevents](https://github.com/user-attachments/assets/a9ca3ee2-21aa-45f0-86ef-cda229ae9b21)
 </ul>
 
+**Running cypress tests:**
+
+cd Frontend
+
+npx cypress open
+
 <h2>Backend</h2>
 
 <h3>Tasks Completed</h3>
