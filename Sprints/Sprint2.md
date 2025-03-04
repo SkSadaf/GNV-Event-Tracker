@@ -133,7 +133,7 @@ localhost:8080/GetEvent/{event.ID}
 POST
 
 **URL:**
-http://localhost:8080/events/{event.ID}/comments
+localhost:8080/events/{event.ID}/comments
 
 ![image](https://github.com/user-attachments/assets/9d7fdf2f-49ac-47c3-8104-35b23944a708)
 
