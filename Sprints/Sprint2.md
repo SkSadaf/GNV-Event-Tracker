@@ -183,6 +183,21 @@ localhost:8080/loginOrganizer
 
 ![image](https://github.com/user-attachments/assets/1af6fdad-66f7-4e33-bf88-8ca65035c93c)
 
+**10. AddUser API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/addUser
+
+<img width="1028" alt="image" src="https://github.com/user-attachments/assets/2e3631b4-80eb-4adb-91fe-0f99d214835c" />
+
+**Sample Response**
+
+<img width="1035" alt="image" src="https://github.com/user-attachments/assets/72a43fc6-25e8-4b9d-8c88-ead2b54e695b" />
+
+
 <h3>Backend Unit Tests</h3>
 <ul>
   <li>User API tests</li>
