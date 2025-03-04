@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Assuming you're using React Router for navigation
+import { useNavigate } from 'react-router-dom';
 import './styles/Login.css';
-import { useUser } from './UserContext';
-import { useAuth } from './AuthContext';
+// import { useUser } from './UserContext';
+// import { useAuth } from './AuthContext';
 
 const Login = () => {
-  const { login } = useAuth();
+  // const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +38,7 @@ const Login = () => {
       // setUserId(id);
       console.log("UserId set in Login:", id);
       localStorage.setItem('userId', id);
-      login()
+      // login()
 
       alert(`Welcome ${username}!`);
       navigate('/dashboard');
