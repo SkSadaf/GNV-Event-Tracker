@@ -33,6 +33,8 @@
 <h4>Unit tests:</h4>
 <ul>
 <li>Login page</li>
+  ![https://github.com/user-attachments/assets/5c21d6c0-e4ed-4617-b981-84d9e469ec97]()
+
 <li>SignUp page</li>
 </ul>
 
