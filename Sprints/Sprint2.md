@@ -197,6 +197,129 @@ http://localhost:8080/addUser
 
 <img width="1035" alt="image" src="https://github.com/user-attachments/assets/72a43fc6-25e8-4b9d-8c88-ead2b54e695b" />
 
+**11. GetUserByID API**
+
+**Request Method:**
+GET
+
+**URL:**
+http://localhost:8080/user/1
+
+<img width="1026" alt="image" src="https://github.com/user-attachments/assets/37d3279d-42ad-4068-b239-cedb5e7b167a" />
+
+
+**Sample Response**
+
+<img width="1031" alt="image" src="https://github.com/user-attachments/assets/f65f4c02-49f0-4bbe-9de0-388d743805ba" />
+
+**12. EditUser API**
+
+**Request Method:**
+PUT
+
+**URL:**
+http://localhost:8080/editUser/1
+
+<img width="1032" alt="image" src="https://github.com/user-attachments/assets/de526034-3a37-4e2b-9c8a-295f2b3e1ed4" />
+
+
+**Sample Response**
+
+<img width="1032" alt="image" src="https://github.com/user-attachments/assets/c2c3f8cd-2377-4466-aefd-86806470398b" />
+
+
+**13. RemoveUser API**
+
+**Request Method:**
+DELETE
+
+**URL:**
+http://localhost:8080/users/1
+
+<img width="1033" alt="image" src="https://github.com/user-attachments/assets/4da27ada-333d-4cc9-9396-3f78fa35d469" />
+
+
+**Sample Response**
+
+<img width="1026" alt="image" src="https://github.com/user-attachments/assets/125e8f0c-9711-4d26-b5f0-deb9fac08d9e" />
+
+**14. RegisterUser API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/register
+
+<img width="1029" alt="image" src="https://github.com/user-attachments/assets/84ce6ecb-5c29-43d9-a507-5c9b9396c26c" />
+
+
+**Sample Response**
+
+<img width="1036" alt="image" src="https://github.com/user-attachments/assets/fc8754f7-bb83-4aa3-8493-68e121da9975" />
+
+**15. LoginUser API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/LoginUser
+
+<img width="1040" alt="image" src="https://github.com/user-attachments/assets/c0d7f6fe-d4a5-40bd-9173-bb38ad324898" />
+
+
+**Sample Response**
+
+<img width="1030" alt="image" src="https://github.com/user-attachments/assets/3d33dc72-46e3-41e1-9e6b-4b6f6227ac82" />
+
+**16. LogoutUser API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/logout/2
+
+<img width="1047" alt="image" src="https://github.com/user-attachments/assets/06ab33b9-0100-4d17-82b4-d965398f0598" />
+
+
+**Sample Response**
+
+<img width="1035" alt="image" src="https://github.com/user-attachments/assets/6053dd31-e29e-4bb2-bfc2-ff975ff0c4d8" />
+
+
+**17. MapUserToEvent API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/mapUserToEvent
+
+<img width="1034" alt="image" src="https://github.com/user-attachments/assets/2f9c1a5e-4972-4c07-b6ad-a236988f80e3" />
+
+
+**Sample Response**
+
+<img width="1049" alt="image" src="https://github.com/user-attachments/assets/0d27e1ef-52ba-4aee-88c7-0710869bc840" />
+
+
+**18. GetRegisteredEvents API**
+
+**Request Method:**
+GET
+
+**URL:**
+http://localhost:8080/user/2/GetUserRegisteredEvents
+
+<img width="1049" alt="image" src="https://github.com/user-attachments/assets/9857e6e7-ad94-4a5e-974f-ddac353420df" />
+
+
+**Sample Response**
+
+<img width="1056" alt="image" src="https://github.com/user-attachments/assets/452d97d3-5160-4b87-8bbc-1e923e92cd72" />
+
 
 <h3>Backend Unit Tests</h3>
 <ul>
