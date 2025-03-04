@@ -33,16 +33,22 @@
 <h4>Unit tests:</h4>
 <ul>
 <li>Login page</li>
-  ![https://github.com/user-attachments/assets/5c21d6c0-e4ed-4617-b981-84d9e469ec97]()
-
+![login gif](https://github.com/user-attachments/assets/01994aad-01a1-4fb1-82bb-25c83cfb1fa0)
+  
 <li>SignUp page</li>
+![signup gif](https://github.com/user-attachments/assets/a5509424-530f-46bb-8bfc-89ece520d0e8)
 </ul>
 
 <h4>Cypress e2e tests:</h4>
 <ul>
 <li>Homepage</li>
+![homepage gif](https://github.com/user-attachments/assets/8e5b41c1-9903-42a2-b742-1c74602569a0)
+  
 <li>Dashboard</li>
+![dashboard gif](https://github.com/user-attachments/assets/454370c9-56e1-4354-9054-40b6b7be14bf)
+
 <li>All Events page</li>
+![allevents gif](https://github.com/user-attachments/assets/a9ca3ee2-21aa-45f0-86ef-cda229ae9b21)
 </ul>
 
 <h2>Backend</h2>
