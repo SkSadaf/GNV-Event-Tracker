@@ -14,6 +14,10 @@
 <ul>
   <li>Created initial version of web scraper for collecting event data</li>
   <li>Created an Organizer object and API for users who create events</li>
+  <li>Created Go Unit tests for user, events, and organizer APIs</li>
+  <li>Created APIs for Get event details by event ID, Get all registered events for user, map/register user to event, Add Organizer, Delete Organizer, Login Organizer, Add comment to event, and Logout user</li>
+  <li>Add additional required columns to Users and Events DB, User-Event DB mapping, Event-organizer and Event-organizerID DB mapping</li>
+  
 </ul>
 
 <h3>API Documentation</h3>
