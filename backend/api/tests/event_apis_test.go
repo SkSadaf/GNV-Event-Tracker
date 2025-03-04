@@ -169,45 +169,59 @@ func TestDeleteEvent(t *testing.T) {
 }
 
 func TestAddCommentToEvent(t *testing.T) {
-	// Setup
-	gin.SetMode(gin.TestMode)
-	db := setupTestDB()
-	database.DB = db
+    // Setup
+    gin.SetMode(gin.TestMode)
+    db := setupTestDB()
+    database.DB = db
 
-	// Create a test event
-	event := data.Event{Name: "Test Event"}
-	db.Create(&event)
+    // Create a test event
+    event := data.Event{Name: "Test Event"}
+    db.Create(&event)
 
-	// Create a test comment
-	comment := data.Comment{Content: "Test Comment"}
-	commentJSON, _ := json.Marshal(comment)
+    // Create a test comment
+    comment := data.Comment{
+        UserID:   2,
+        UserName: "John Doe",
+        Content:  "This is a great event!",
+    }
+    commentJSON, _ := json.Marshal(comment)
 
-	// Create a request
-	req, _ := http.NewRequest(http.MethodPost, "/events/"+strconv.FormatUint(uint64(event.ID), 10)+"/comments", bytes.NewBuffer(commentJSON))
-	req.Header.Set("Content-Type", "application/json")
+    // Create a request
+    req, _ := http.NewRequest(http.MethodPost, "/events/"+strconv.FormatUint(uint64(event.ID), 10)+"/comments", bytes.NewBuffer(commentJSON))
+    req.Header.Set("Content-Type", "application/json")
 
-	// Create a response recorder
-	w := httptest.NewRecorder()
+    // Create a response recorder
+    w := httptest.NewRecorder()
 
-	// Create a Gin context
-	c, _ := gin.CreateTestContext(w)
-	c.Params = gin.Params{gin.Param{Key: "id", Value: strconv.FormatUint(uint64(event.ID), 10)}}
-	c.Request = req
+    // Create a Gin context
+    c, _ := gin.CreateTestContext(w)
+    c.Params = gin.Params{gin.Param{Key: "id", Value: strconv.FormatUint(uint64(event.ID), 10)}}
+    c.Request = req
 
-	// Call the function
-	api.AddCommentToEvent(c)
+    // Call the function
+    api.AddCommentToEvent(c)
 
-	// Check the response
-	assert.Equal(t, http.StatusOK, w.Code)
-	var response map[string]string
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, "Comment added successfully", response["message"])
+    // Check the response
+    assert.Equal(t, http.StatusOK, w.Code)
+    var response map[string]string
+    json.Unmarshal(w.Body.Bytes(), &response)
+    assert.Equal(t, "Comment added successfully", response["message"])
 
-	// Check the database
-	var dbComment data.Comment
-	db.First(&dbComment)
-	assert.Equal(t, comment.Content, dbComment.Content)
-	assert.Equal(t, event.ID, dbComment.EventID)
+    // Check the database for the updated event
+    var dbEvent data.Event
+    db.First(&dbEvent, event.ID)
+
+    // Unmarshal comments from JSON string
+    var comments []data.Comment
+    if err := json.Unmarshal([]byte(dbEvent.Comments), &comments); err != nil {
+        t.Fatalf("Error unmarshaling comments: %v", err)
+    }
+
+    // Assert that the comment was added
+    assert.Len(t, comments, 1)
+    assert.Equal(t, comment.UserID, comments[0].UserID)
+    assert.Equal(t, comment.UserName, comments[0].UserName)
+    assert.Equal(t, comment.Content, comments[0].Content)
 }
 
 /////////////////////////////////////////////////////////////////////////

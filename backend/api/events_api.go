@@ -3,6 +3,7 @@ package api
 import (
 	"backend/data"
 	"backend/database"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -119,35 +120,61 @@ func DeleteEvent(c *gin.Context) {
 
 // Add comment to event
 func AddCommentToEvent(c *gin.Context) {
-	var comment data.Comment
-	id := c.Param("id")
+    var newComment data.Comment
+    id := c.Param("id")
 
-	// Find the event by ID
-	var event data.Event
-	if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
-		log.Printf("Error finding event: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
-		return
-	}
+    // Find the event by ID
+    var event data.Event
+    if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
+        log.Printf("Error finding event: %v", err)
+        c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+        return
+    }
 
-	// Bind the comment from the request body
-	if err := c.ShouldBindJSON(&comment); err != nil {
-		log.Printf("Error binding JSON: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
-		return
-	}
+    // Bind the comment from the request body
+    if err := c.ShouldBindJSON(&newComment); err != nil {
+        log.Printf("Error binding JSON: %v", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+        return
+    }
 
-	// Associate the comment with the event
-	comment.EventID = event.ID
+    // Set the EventID for the new comment
+    newComment.EventID = event.ID
 
-	// Save the comment to the database
-	if err := database.DB.Create(&comment).Error; err != nil {
-		log.Printf("Error saving comment: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add comment"})
-		return
-	}
+    // Initialize comments slice
+    var comments []data.Comment
+    
+    // If comments exist, unmarshal the existing JSON
+    if event.Comments != "" {
+        if err := json.Unmarshal([]byte(event.Comments), &comments); err != nil {
+            log.Printf("Error unmarshaling comments: %v", err)
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
+            return
+        }
+    }
 
-	c.JSON(http.StatusOK, gin.H{"message": "Comment added successfully"})
+    // Add the new comment
+    comments = append(comments, newComment)
+    
+    // Marshal the updated comments back to JSON
+    commentsJSON, err := json.Marshal(comments)
+    if err != nil {
+        log.Printf("Error marshaling comments: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
+        return
+    }
+    
+    // Update the event with the new comments JSON
+    event.Comments = string(commentsJSON)
+
+    // Save the updated event back to the database
+    if err := database.DB.Save(&event).Error; err != nil {
+        log.Printf("Error saving event: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add comment"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Comment added successfully"})
 }
 
 func MapUserToEvent(c *gin.Context) {

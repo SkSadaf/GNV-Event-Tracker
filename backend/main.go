@@ -56,6 +56,7 @@ func main() {
 	r.POST("/createOrganizer", api.CreateOrganizer)
 	r.DELETE("/deleteOrganizer/:id", api.DeleteOrganizer)
 	r.POST("/loginOrganizer", api.LoginOrganizer)
+	r.POST("/events/:id/comments", api.AddCommentToEvent)
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)

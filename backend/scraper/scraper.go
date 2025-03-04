@@ -69,7 +69,7 @@ func ScrapeVisitGainesville() {
 
 	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
 	page := 1
-	maxPages := 4
+	maxPages := 2
 
 	// Colly collector for scraping event pages
 	eventCollector := colly.NewCollector(
