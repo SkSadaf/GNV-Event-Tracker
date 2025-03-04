@@ -1,0 +1,20 @@
+/* src/components/Dashboard.css */
+.dashboard {
+    padding: 20px;
+  }
+  
+  .event-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .event-item {
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .event-item h3 {
+    margin-top: 0;
+  }

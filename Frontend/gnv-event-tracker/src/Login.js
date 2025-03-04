@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Assuming you're using React Router for navigation
+import { useNavigate } from 'react-router-dom';
 import './styles/Login.css';
+// import { useUser } from './UserContext';
+// import { useAuth } from './AuthContext';
 
 const Login = () => {
+  // const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  // const { setUserId } = useUser();
   
-  // Replace with your actual API URL and API key
   const API_URL = 'http://localhost:8080/LoginUser';
-  // const API_KEY = 'your-api-key';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,16 +28,20 @@ const Login = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${API_KEY}`,
           },
         }
       );
       
-      // Assuming your backend returns the username upon successful login
       const username = response.data.name;
+      const id = response.data.user_id;
+
+      // setUserId(id);
+      console.log("UserId set in Login:", id);
+      localStorage.setItem('userId', id);
+      // login()
 
       alert(`Welcome ${username}!`);
-      navigate('/landing');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error logging in:', error);
       if (error.response && error.response.data.error) {
