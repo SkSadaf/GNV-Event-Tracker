@@ -13,7 +13,7 @@ const HeaderLanding = () => {
       <nav>
         <ul>
           <li><a href="/dashboard">Dashboard</a></li>
-          {/* <li><a href="/map">Map</a></li> */}
+           <li><a href="/map">Map</a></li>
           <li><a href="/events">All Events</a></li>
           {/* <li><a href="/logout">Log Out</a></li> */}
           <li><LogoutButton /></li>
