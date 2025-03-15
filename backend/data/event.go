@@ -20,4 +20,5 @@ type Event struct {
 	Rating         float64   `json:"rating"`                    // Event rating
 	Active         bool      `json:"active"`                    // Is the event active
 	GoogleMapsLink string    `json:"google_maps_link"`          // Google Maps directions link
+	Website        string    `json:"website"`                   // Event website link
 }
