@@ -27,6 +27,7 @@ function App() {
           <Route path="*" element={<Header />} />
           <Route path="/events" element={<HeaderLanding />} />
           <Route path="/events/:eventId" element={<HeaderLanding />} />
+          <Route path="/map" element={<HeaderLanding />} />
         </Routes>
         <Routes>
           <Route path="/signup" element={<SignUp />} />

@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import eventsData from './events';
 import './App.css';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-// Fix marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -15,8 +14,32 @@ L.Icon.Default.mergeOptions({
 });
 
 function MapPage() {
-  // Gainesville, Florida coordinates
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const gainesvillePosition = [29.6516, -82.3248];
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/GetAllEvents');
+        const filteredEvents = response.data.filter(
+          event => event.latitude !== 0 && event.longitude !== 0
+        );
+        setEvents(filteredEvents);
+        setLoading(false);
+      } catch (err) {
+        setError('Error fetching events. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  if (loading) return <div>Loading events...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="map-container">
@@ -34,7 +57,7 @@ function MapPage() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
             
-            {eventsData.map((event) => (
+            {events.map((event) => (
               <Marker 
                 key={event.id} 
                 position={[event.latitude, event.longitude]}
@@ -44,7 +67,9 @@ function MapPage() {
                   <div>
                     <h3>{event.name}</h3>
                     <p>{event.description}</p>
-                    <Link to={`/event/${event.id}`}>More Details</Link>
+                    <Link to={`/events/${event.id}`} state={{ userId: 'mockUserId' }}>
+                      <h3>{event.name}</h3>
+                    </Link>
                   </div>
                 </Popup>
               </Marker>
@@ -52,7 +77,6 @@ function MapPage() {
           </MapContainer>
         )}
       </div>
-      <Link to="/" className="back-link">Back to Home</Link>
     </div>
   );
 }
