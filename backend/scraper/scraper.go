@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"backend/database"
 
 	"github.com/gocolly/colly"
+	"github.com/muesli/gominatim"
 )
 
 type Event struct {
@@ -37,8 +39,91 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string)
 	if err := database.DB.Create(&event).Error; err != nil {
 		return err
 	}
+
+	// Populate latitude and longitude for the inserted event
+	if err := PopulateLatLng(&event); err != nil {
+		log.Println("Error populating latitude/longitude:", err)
+	}
+
+
 	return nil
 }
+
+
+// removeNameFromLocation removes the name part from the location string and returns the address part
+func removeNameFromLocation(location string) string {
+    // Split the location string by spaces to find where the numeric address starts
+    parts := strings.Fields(location)
+    for i, part := range parts {
+        // Check if the part is numeric
+        if _, err := strconv.Atoi(part); err == nil {
+            // Return the location starting from the numeric address
+            return strings.Join(parts[i:], " ")
+        }
+    }
+    return "" // Return an empty string if no numeric address is found
+}
+
+// PopulateLatLng updates the latitude and longitude for events in the database
+func PopulateLatLng(event *data.Event) error {
+	// Set Gominatim server
+	gominatim.SetServer("https://nominatim.openstreetmap.org/")
+
+	qry := gominatim.SearchQuery{
+		Q: event.Location,
+	}
+
+	// Perform the geocoding
+	resp, err := qry.Get()
+	if err != nil {
+		log.Printf("Failed to geocode location for event ID %d: %v\n", event.ID, err)
+
+		// Attempt to remove the name and geocode again
+		modifiedLocation := removeNameFromLocation(event.Location)
+		if modifiedLocation != "" {
+			qry = gominatim.SearchQuery{Q: modifiedLocation}
+			resp, err = qry.Get()
+			if err != nil {
+				log.Printf("Failed to geocode modified location for event ID %d: %v\n", event.ID, err)
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	// Update latitude and longitude if results are found
+	if len(resp) > 0 {
+		lat, err := strconv.ParseFloat(resp[0].Lat, 64)
+		if err != nil {
+			log.Printf("Error converting latitude for event ID %d: %v\n", event.ID, err)
+			return err
+		}
+
+		lng, err := strconv.ParseFloat(resp[0].Lon, 64)
+		if err != nil {
+			log.Printf("Error converting longitude for event ID %d: %v\n", event.ID, err)
+			return err
+		}
+
+		event.Latitude = lat
+		event.Longitude = lng
+
+		if err := database.DB.Save(event).Error; err != nil {
+			log.Printf("Failed to update event ID %d: %v\n", event.ID, err)
+			return err
+		} else {
+			fmt.Printf("Updated event ID %d: (%f, %f)\n", event.ID, event.Latitude, event.Longitude)
+		}
+	} else {
+		log.Printf("No geocoding results found for event ID %d\n", event.ID)
+		return fmt.Errorf("no geocoding results found")
+	}
+
+	return nil
+}
+
+
 
 func CleanWhiteSpaces(str string) string {
 	// Preserve trailing newline

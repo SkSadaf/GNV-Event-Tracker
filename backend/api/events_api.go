@@ -7,13 +7,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
-
-	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/muesli/gominatim"
+
 	"gorm.io/gorm"
 )
 
@@ -43,11 +39,6 @@ func CreateEvent(c *gin.Context) {
 
 // GetAllEvents retrieves all events
 func GetAllEvents(c *gin.Context) {
-    // First, populate latitude and longitude
-    if err := PopulateLatLng(database.DB); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to populate latitude and longitude"})
-        return
-    }
 
     var events []data.Event
     if err := database.DB.Find(&events).Error; err != nil {
@@ -59,86 +50,8 @@ func GetAllEvents(c *gin.Context) {
 }
 
 
-// PopulateLatLng updates the latitude and longitude for events in the database
-func PopulateLatLng(db *gorm.DB) error {
-    // Set Gominatim server
-    gominatim.SetServer("https://nominatim.openstreetmap.org/")
 
-    // Retrieve events from the database
-    var events []data.Event
-    if err := db.Find(&events).Error; err != nil {
-        return fmt.Errorf("failed to retrieve events: %w", err)
-    }
 
-    // Iterate through each event and update latitude and longitude
-    for i := range events {
-        qry := gominatim.SearchQuery{
-            Q: events[i].Location,
-        }
-
-        // Perform the geocoding
-        resp, err := qry.Get()
-        if err != nil {
-            log.Printf("Failed to geocode location for event ID %d: %v\n", events[i].ID, err)
-
-            // Attempt to remove the name and geocode again
-            modifiedLocation := removeNameFromLocation(events[i].Location)
-            if modifiedLocation != "" {
-                qry = gominatim.SearchQuery{Q: modifiedLocation}
-                resp, err = qry.Get()
-                if err != nil {
-                    log.Printf("Failed to geocode modified location for event ID %d: %v\n", events[i].ID, err)
-                    continue // Skip to the next event if geocoding fails again
-                }
-            } else {
-                continue // Skip if there's nothing left to search
-            }
-        }
-
-        // Update latitude and longitude if results are found
-        if len(resp) > 0 {
-            // Convert string to float64
-            lat, err := strconv.ParseFloat(resp[0].Lat, 64)
-            if err != nil {
-                log.Printf("Error converting latitude for event ID %d: %v\n", events[i].ID, err)
-                continue
-            }
-
-            lng, err := strconv.ParseFloat(resp[0].Lon, 64)
-            if err != nil {
-                log.Printf("Error converting longitude for event ID %d: %v\n", events[i].ID, err)
-                continue
-            }
-
-            events[i].Latitude = lat
-            events[i].Longitude = lng
-
-            // Save updated event to the database
-            if err := db.Save(&events[i]).Error; err != nil {
-                log.Printf("Failed to update event ID %d: %v\n", events[i].ID, err)
-            } else {
-                fmt.Printf("Updated event ID %d: (%f, %f)\n", events[i].ID, events[i].Latitude, events[i].Longitude)
-            }
-        } else {
-            log.Printf("No geocoding results found for event ID %d\n", events[i].ID)
-        }
-    }
-    return nil
-}
-
-// removeNameFromLocation removes the name part from the location string and returns the address part
-func removeNameFromLocation(location string) string {
-    // Split the location string by spaces to find where the numeric address starts
-    parts := strings.Fields(location)
-    for i, part := range parts {
-        // Check if the part is numeric
-        if _, err := strconv.Atoi(part); err == nil {
-            // Return the location starting from the numeric address
-            return strings.Join(parts[i:], " ")
-        }
-    }
-    return "" // Return an empty string if no numeric address is found
-}
 
 // GetEventByID retrieves a single event by its ID
 func GetEventByID(c *gin.Context) {
