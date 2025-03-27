@@ -79,10 +79,6 @@ const Dashboard = () => {
 
   const API_URL = 'http://localhost:8080';
 
-  useEffect(() => {
-    fetchRegisteredEvents();
-  }, [userId]);
-
   const fetchRegisteredEvents = async () => {
     if (!userId) {
       setError('User not logged in');
@@ -105,18 +101,33 @@ const Dashboard = () => {
     }
   };
 
+  useEffect(() => {
+    fetchRegisteredEvents();
+  }, [userId]);
+
   const handleUnregister = async (eventId) => {
     try {
-      await axios.post(`${API_URL}/user/${userId}/unregister/${eventId}`, {}, {
-        headers: {
-          'Content-Type': 'application/json',
+      await axios.post(
+        `${API_URL}/unmapUserFromEvent`, 
+        {
+          user_id: parseInt(userId),
+          event_id: parseInt(eventId)
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
         }
-      });
-      // Refresh the list of registered events
-      fetchRegisteredEvents();
+      );
+      
+      // Remove the event from the state after successful unregistration
+      setRegisteredEvents(prevEvents => 
+        prevEvents.filter(event => event.id !== eventId)
+      );
+
     } catch (err) {
       console.error('Error unregistering from event:', err);
-      setError('Failed to unregister from the event. Please try again later.');
+      alert('Failed to unregister from event. Please try again.');
     }
   };
 
@@ -132,12 +143,19 @@ const Dashboard = () => {
         <ul className="event-list">
           {registeredEvents.map((event) => (
             <li key={event.id} className="event-item">
-              <Link to={`/events/${event.id}`}>
-                <h3>{event.name}</h3>
-              </Link>
+              <div className="event-header">
+                <Link to={`/events/${event.id}`}>
+                  <h3>{event.name}</h3>
+                </Link>
+                <button 
+                  className="unregister-button"
+                  onClick={() => handleUnregister(event.id)}
+                >
+                  Unregister
+                </button>
+              </div>
               <p>Date: {event.date}</p>
               <p>Location: {event.location}</p>
-              <button onClick={() => handleUnregister(event.id)}>Unregister</button>
             </li>
           ))}
         </ul>
