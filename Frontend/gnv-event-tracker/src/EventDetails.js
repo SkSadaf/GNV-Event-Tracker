@@ -159,9 +159,9 @@ const EventDetails = () => {
         if (userId) {
           const registeredEventsResponse = await axios.get(`${API_URL}/user/${userId}/GetUserRegisteredEvents`);
           const registeredEvents = registeredEventsResponse.data;
-          
+          console.log(registeredEvents)
           // Check if current event is in the list of registered events
-          const isUserRegistered = registeredEvents.some(event => event.ID === parseInt(eventId));
+          const isUserRegistered = registeredEvents.some(event => event.id === parseInt(eventId));
           setIsRegistered(isUserRegistered);
         }
         
