@@ -5,10 +5,14 @@ import (
 	"backend/api"
 	"backend/database"
 	"backend/scraper"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -58,12 +62,27 @@ func main() {
 	r.DELETE("/deleteOrganizer/:id", api.DeleteOrganizer)
 	r.POST("/loginOrganizer", api.LoginOrganizer)
 	r.POST("/events/:id/comments", api.AddCommentToEvent)
+	r.GET("/events/:event_id/GetAllComments", api.GetAllComments)
+
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	fmt.Println("Server running on port:", port)
+
 	// Start the server on port 8080
-	r.Run(":8080")
+	// r.Run(":8080")
+
+	r.Run("0.0.0.0:" + port)
+
 
 }
 

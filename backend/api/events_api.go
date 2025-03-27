@@ -182,6 +182,29 @@ func AddCommentToEvent(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "Comment added successfully"})
 }
 
+func GetAllComments(c *gin.Context) {
+	// Get event ID from URL parameter
+	eventID := c.Param("event_id")
+
+	// Fetch event from the database
+	var event data.Event
+	if err := database.DB.First(&event, eventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	// Parse the JSON comments field
+	var comments []map[string]interface{}
+	if err := json.Unmarshal([]byte(event.Comments), &comments); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse comments"})
+		return
+	}
+
+	// Return the formatted list of comments
+	c.JSON(http.StatusOK, gin.H{"comments": comments})
+}
+
+
 func MapUserToEvent(c *gin.Context) {
 	var input struct {
 		UserID  uint `json:"user_id" binding:"required"`
