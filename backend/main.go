@@ -52,6 +52,7 @@ func main() {
 	r.PUT("/EditEvent/:id", api.EditEvent)
 	r.DELETE("/DeleteEvent/:id", api.DeleteEvent)
 	r.POST("/mapUserToEvent", api.MapUserToEvent)
+	r.POST("/unmapUserFromEvent", api.UnmapUserFromEvent)
 	r.GET("/user/:id/GetUserRegisteredEvents", api.GetRegisteredEvents)
 	r.POST("/createOrganizer", api.CreateOrganizer)
 	r.DELETE("/deleteOrganizer/:id", api.DeleteOrganizer)
