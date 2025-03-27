@@ -131,6 +131,7 @@
 // };
 
 // export default EventDetails;
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUser } from './UserContext';
@@ -147,56 +148,33 @@ const EventDetails = () => {
 
   const API_URL = 'http://localhost:8080';
 
-  // Fetch event details
   useEffect(() => {
-    const fetchEventDetails = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/GetEvent/${eventId}`);
-        setEventDetails(response.data);
+        // Fetch event details
+        const eventResponse = await axios.get(`${API_URL}/GetEvent/${eventId}`);
+        setEventDetails(eventResponse.data);
+        
+        // Check if user is registered for this event (only if user is logged in)
+        if (userId) {
+          const registeredEventsResponse = await axios.get(`${API_URL}/GetRegisteredEvents/${userId}`);
+          const registeredEvents = registeredEventsResponse.data;
+          
+          // Check if current event is in the list of registered events
+          const isUserRegistered = registeredEvents.some(event => event.ID === parseInt(eventId));
+          setIsRegistered(isUserRegistered);
+        }
+        
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching event details:', err);
-        setError('Failed to load event details. Please try again later.');
+        console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again later.');
         setLoading(false);
       }
     };
 
-    fetchEventDetails();
-  }, [eventId]);
-
-  // Check if user is registered for this event
-  useEffect(() => {
-    if (userId) {
-      const checkRegistration = async () => {
-        try {
-          const response = await axios.get(`${API_URL}/GetRegisteredEvents/${userId}`);
-          const registeredEvents = response.data;
-          
-          // Convert eventId to number for comparison
-          const currentEventId = parseInt(eventId);
-          
-          // Log data to help with debugging
-          console.log('Current Event ID:', currentEventId);
-          console.log('Registered Events:', registeredEvents);
-          
-          // Check if any of the registered events match this event ID
-          const found = registeredEvents.some(event => {
-            // Check different possible property names for the ID
-            const eventIdValue = event.ID || event.id || event.event_id;
-            console.log(`Comparing: ${eventIdValue} with ${currentEventId}`);
-            return parseInt(eventIdValue) === currentEventId;
-          });
-          
-          console.log('Is Registered:', found);
-          setIsRegistered(found);
-        } catch (err) {
-          console.error('Error checking registration:', err);
-        }
-      };
-
-      checkRegistration();
-    }
-  }, [userId, eventId]);
+    fetchData();
+  }, [eventId, userId]);
 
   const handleRegister = async () => {
     if (!userId) {
