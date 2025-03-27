@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -145,6 +146,9 @@ func AddCommentToEvent(c *gin.Context) {
 
     // Set the EventID for the new comment
     newComment.EventID = event.ID
+
+    // Set created_at to current timestamp
+	newComment.CreatedAt = time.Now().Format("January 2, 2006 3:04 PM") // Custom format
 
     // Initialize comments slice
     var comments []data.Comment
