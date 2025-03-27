@@ -219,6 +219,43 @@ func MapUserToEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User successfully mapped to event"})
 }
 
+func UnmapUserFromEvent(c *gin.Context) {
+	var input struct {
+		UserID  uint `json:"user_id" binding:"required"`
+		EventID uint `json:"event_id" binding:"required"`
+	}
+
+	// Bind JSON input to the struct
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	var user data.User
+	var event data.Event
+
+	// Check if the user exists
+	if err := database.DB.First(&user, input.UserID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Check if the event exists
+	if err := database.DB.First(&event, input.EventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	// Remove the association between the user and the event
+	if err := database.DB.Model(&event).Association("Users").Delete(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmap user from event"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User successfully unmapped from event"})
+}
+
+
 // GetRegisteredEvents retrieves all events a user is registered for
 func GetRegisteredEvents(c *gin.Context) {
 	userID := c.Param("id") // Get the user ID from the URL parameters
