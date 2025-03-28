@@ -5,27 +5,30 @@ import (
 	"backend/api"
 	"backend/database"
 	"backend/scraper"
-	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-
-	// Example scraping function call
-	// url := "https://www.visitgainesville.com/event/silver-linings-celebrating-the-spelman-art-collection-exhibition/"
-
+	// Initialize database
 	if err := database.InitDB(); err != nil {
 		panic("Failed to connect to database")
 	}
 
-	scraper.ScrapeVisitGainesville()
+	// Create a wait group to synchronize server start
+	var wg sync.WaitGroup
+	wg.Add(1)
 
+	// Create a channel to signal server start
+	serverStarted := make(chan bool)
+
+	// Prepare the router
 	r := gin.Default()
 
 	// CORS configuration
@@ -68,22 +71,46 @@ func main() {
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found, using system environment variables")
-	}
+	// Determine port
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Println("Server running on port:", port)
+	log.Println("Server running on port:", port)
 
-	// Start the server on port 8080
-	// r.Run(":8080")
+	// Start the server in a goroutine
+	go func() {
+		defer wg.Done()
+		log.Println("Starting server on port:", port)
+		
+		// Create a listener
+		listener, err := net.Listen("tcp", ":"+port)
+		if err != nil {
+			log.Fatalf("Failed to create listener: %v", err)
+		}
+		
+		// Signal that server is ready
+		close(serverStarted)
+		
+		// Serve using the listener
+		if err := r.RunListener(listener); err != nil {
+			log.Fatalf("Server failed to start: %v", err)
+		}
+	}()
 
-	r.Run("0.0.0.0:" + port)
+	// Wait for server to start
+	<-serverStarted
+	log.Println("Server is now running")
 
+	// Start scraper after the server begins running
+	go func() {
+		log.Println("Starting scraper...")
+		scraper.ScrapeVisitGainesville()
+		log.Println("Scraping completed")
+	}()
 
+	// Wait for server to completely finish
+	wg.Wait()
 }
 
 func getSQLiteVersion(c *gin.Context) {
