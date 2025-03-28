@@ -5,6 +5,7 @@ import (
 	"backend/database"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -18,9 +19,23 @@ import (
 func CreateEvent(c *gin.Context) {
 	var event data.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}) // Log the error message
 		return
 	}
+
+	// Parse the date input (e.g., "2025-06-15")
+	parsedDate, err := time.Parse("2006-01-02", event.Date)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
+		return
+	}
+
+	// Format the date to "June 15"
+	formattedDate := parsedDate.Format("January 2")
+
+
+	// Concatenate the formatted date and time
+	event.Date = fmt.Sprintf("%s, %s", formattedDate, event.Time)
 
 	// Set the Active flag to true by default
 	event.Active = true
@@ -304,4 +319,29 @@ func GetRegisteredEvents(c *gin.Context) {
 	// Return the list of events
 	c.JSON(http.StatusOK, events)
 }
+
+//GetUsersByEvent list using Event ID
+func GetUsersByEvent(c *gin.Context) {
+    // Get the event_id from URL parameter
+    eventID := c.Param("event_id")
+    
+    var event data.Event
+
+    // Check if the event exists
+    if err := database.DB.First(&event, eventID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+        return
+    }
+
+    var users []data.User
+    // Retrieve users associated with the event
+    if err := database.DB.Model(&event).Association("Users").Find(&users); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users for the event"})
+        return
+    }
+
+    // Respond with the list of users
+    c.JSON(http.StatusOK, users)
+}
+
 ///////////////////////////////////////////////////////////////
