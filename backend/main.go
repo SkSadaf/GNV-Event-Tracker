@@ -5,14 +5,12 @@ import (
 	"backend/api"
 	"backend/database"
 	"backend/scraper"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -68,20 +66,38 @@ func main() {
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found, using system environment variables")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Println("No .env file found, using system environment variables")
+	// }
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Println("Server running on port:", port)
+	log.Println("Server running on port:", port)
 
+	// Start the server in a goroutine
+	go func() {
+		log.Println("Starting server on : ", port)
+		if err := r.Run(":" + port); err != nil {
+			log.Fatalf("Server failed to start: %v", err)
+		}
+	}()
+
+
+	// Start scraper after the server begins running
+	go func() {
+		log.Println("Starting scraper...")
+		scraper.ScrapeVisitGainesville()
+		log.Println("Scraping completed")
+	}()
+
+
+	select {}
 	// Start the server on port 8080
 	// r.Run(":8080")
 
-	r.Run("0.0.0.0:" + port)
+	// r.Run("0.0.0.0:" + port)
 
 
 }
