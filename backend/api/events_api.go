@@ -304,4 +304,29 @@ func GetRegisteredEvents(c *gin.Context) {
 	// Return the list of events
 	c.JSON(http.StatusOK, events)
 }
+
+//GetUsersByEvent list using Event ID
+func GetUsersByEvent(c *gin.Context) {
+    // Get the event_id from URL parameter
+    eventID := c.Param("event_id")
+    
+    var event data.Event
+
+    // Check if the event exists
+    if err := database.DB.First(&event, eventID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+        return
+    }
+
+    var users []data.User
+    // Retrieve users associated with the event
+    if err := database.DB.Model(&event).Association("Users").Find(&users); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users for the event"})
+        return
+    }
+
+    // Respond with the list of users
+    c.JSON(http.StatusOK, users)
+}
+
 ///////////////////////////////////////////////////////////////

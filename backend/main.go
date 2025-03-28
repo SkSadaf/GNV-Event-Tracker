@@ -66,6 +66,8 @@ func main() {
 	r.POST("/loginOrganizer", api.LoginOrganizer)
 	r.POST("/events/:id/comments", api.AddCommentToEvent)
 	r.GET("/events/:event_id/GetAllComments", api.GetAllComments)
+	r.GET("/event/:event_id/users", api.GetUsersByEvent)
+
 
 
 	// SQLite version
