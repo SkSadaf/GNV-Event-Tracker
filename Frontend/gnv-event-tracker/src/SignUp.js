@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './styles/SignUp.css'; 
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
   const [name, setUsername] = useState('');
@@ -7,6 +8,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Replace with your actual API URL
   const API_URL = 'http://localhost:8080/register';
@@ -46,6 +48,9 @@ const SignUp = () => {
       // Handle successful signup (e.g., redirect to login page or dashboard)
       // You might want to use React Router for navigation
       // history.push('/login');
+      setTimeout(() => {
+        navigate('/login'); // Navigate to login page after successful signup
+      }, 2000);
 
     } catch (err) {
       setError(err.message);
