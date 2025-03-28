@@ -12,6 +12,7 @@ import AllEvents from './AllEvents';
 import EventDetails from './EventDetails';
 import { UserProvider } from './UserContext';
 import { AuthProvider } from './AuthContext';
+import CreateEvent from './CreateEvent';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="*" element={<Header />} />
           <Route path="/events" element={<HeaderLanding />} />
           <Route path="/events/:eventId" element={<HeaderLanding />} />
+          <Route path="/map" element={<HeaderLanding />} />
         </Routes>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
@@ -35,6 +37,7 @@ function App() {
           <Route path="/map" element={<MapPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/events" element={<AllEvents />} />
+          <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/events/:eventId" element={<EventDetails />} />
         </Routes>
       </div>

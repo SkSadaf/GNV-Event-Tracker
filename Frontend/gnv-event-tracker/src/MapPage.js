@@ -1,94 +1,84 @@
-
-// import React, { useState } from 'react';
-// import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-// import 'leaflet/dist/leaflet.css';
-// import L from 'leaflet';
-
-// // Fix marker icon issue
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-icon-2x.png',
-//   iconUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-icon.png',
-//   shadowUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-shadow.png'
-// });
-
-// const eventLocations = [
-//   { id: 1, name: "Event 1", lat: 29.6516, lng: -82.3248, link: "/event/1" },
-//   { id: 2, name: "Event 2", lat: 29.6550, lng: -82.3166, link: "/event/2" },
-//   // Add more events as needed
-// ];
-
-// const MapPage = () => {
-//   const [selected, setSelected] = useState(null);
-
-//   return (
-//     <MapContainer center={[29.6516, -82.3248]} zoom={13} style={{ height: "100vh", width: "100%" }}>
-//       <TileLayer
-//         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-//       />
-//       {eventLocations.map(event => (
-//         <Marker 
-//           key={event.id} 
-//           position={[event.lat, event.lng]}
-//           eventHandlers={{
-//             click: () => {
-//               setSelected(event);
-//             },
-//           }}
-//         >
-//           {selected === event && (
-//             <Popup position={[event.lat, event.lng]}>
-//               <div>
-//                 <h2>{event.name}</h2>
-//                 <a href={event.link}>More Info</a>
-//               </div>
-//             </Popup>
-//           )}
-//         </Marker>
-//       ))}
-//     </MapContainer>
-//   );
-// }
-
-// export default MapPage;
-
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import './App.css';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-// Fix marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.6.0/dist/images/marker-shadow.png'
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
 
-const eventLocations = [
-  { id: 1, name: "Event 1", lat: 29.6516, lng: -82.3248, link: "/event/1" },
-  { id: 2, name: "Event 2", lat: 29.6550, lng: -82.3166, link: "/event/2" },
-];
+function MapPage() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-const MapPage = () => (
-  <MapContainer center={[29.6516, -82.3248]} zoom={13} style={{ height: "100vh", width: "100%" }}>
-    <TileLayer
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    />
-    {eventLocations.map(event => (
-      <Marker key={event.id} position={[event.lat, event.lng]}>
-        <Popup>
-          <div>
-            <h2>{event.name}</h2>
-            <a href={event.link}>More Info</a>
-          </div>
-        </Popup>
-      </Marker>
-    ))}
-  </MapContainer>
-);
+  const gainesvillePosition = [29.6516, -82.3248];
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/GetAllEvents');
+        const filteredEvents = response.data.filter(
+          event => event.latitude !== 0 && event.longitude !== 0
+        );
+        setEvents(filteredEvents);
+        setLoading(false);
+      } catch (err) {
+        setError('Error fetching events. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  if (loading) return <div>Loading events...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <div className="map-container">
+      <h1>Events in Gainesville, Florida</h1>
+      <div className="map-wrapper">
+        {typeof window !== 'undefined' && (
+          <MapContainer 
+            center={gainesvillePosition} 
+            zoom={13} 
+            scrollWheelZoom={false}
+            style={{ height: '600px', width: '100%' }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            
+            {events.map((event) => (
+              <Marker 
+                key={event.id} 
+                position={[event.latitude, event.longitude]}
+                title={event.name}
+              >
+                <Popup>
+                  <div>
+                    <h3>{event.name}</h3>
+                    <p>{event.description}</p>
+                    <Link to={`/events/${event.id}`} state={{ userId: 'mockUserId' }}>
+                      <h3>{event.name}</h3>
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default MapPage;
