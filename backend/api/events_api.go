@@ -5,6 +5,7 @@ import (
 	"backend/database"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -18,9 +19,23 @@ import (
 func CreateEvent(c *gin.Context) {
 	var event data.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}) // Log the error message
 		return
 	}
+
+	// Parse the date input (e.g., "2025-06-15")
+	parsedDate, err := time.Parse("2006-01-02", event.Date)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
+		return
+	}
+
+	// Format the date to "June 15"
+	formattedDate := parsedDate.Format("January 2")
+
+
+	// Concatenate the formatted date and time
+	event.Date = fmt.Sprintf("%s, %s", formattedDate, event.Time)
 
 	// Set the Active flag to true by default
 	event.Active = true
