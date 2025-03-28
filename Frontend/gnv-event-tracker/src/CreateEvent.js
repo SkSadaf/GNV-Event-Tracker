@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
-import './styles/CreateEvent.css';  // You'll need to create this CSS file
+import './styles/CreateEvent.css';
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -13,9 +13,14 @@ const CreateEvent = () => {
     date: '',
     time: '',
     location: '',
-    organizer_id: userId, // Set the current user as the organizer
+    organizer_id: parseInt(userId), 
     max_participants: 0,
     category: '',
+    tags: [],
+    tagInput: '',
+    cost: 0.0,
+    google_maps_link: '',
+    website: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +31,27 @@ const CreateEvent = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'max_participants' ? parseInt(value) : value,
+      [name]: name === 'max_participants' ? parseInt(value) 
+              : name === 'cost' ? parseFloat(value)
+              : value,
+    });
+  };
+
+  const handleAddTag = (e) => {
+    e.preventDefault();
+    if (formData.tagInput.trim() !== '' && !formData.tags.includes(formData.tagInput.trim())) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, formData.tagInput.trim()],
+        tagInput: ''
+      });
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter(tag => tag !== tagToRemove)
     });
   };
 
@@ -36,15 +61,24 @@ const CreateEvent = () => {
     setError('');
 
     try {
-      // Format the data as needed for your API
+      const tagsString = formData.tags.join(', ');
       const eventData = {
-        ...formData,
-        // Combine date and time if your backend expects a single datetime field
-        // Otherwise adjust according to your backend requirements
+        name: formData.name,
+        description: formData.description,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        organizer_id: formData.organizer_id,
+        max_participants: formData.max_participants,
+        category: formData.category,
+        tags: tagsString,
+        cost: formData.cost,
+        google_maps_link: formData.google_maps_link,
+        website: formData.website || null,
       };
 
       const response = await axios.post(
-        `${API_URL}/events`,  // Adjust endpoint as needed
+        `${API_URL}/CreateEvent`,
         eventData,
         {
           headers: {
@@ -54,7 +88,7 @@ const CreateEvent = () => {
       );
 
       alert('Event created successfully!');
-      navigate('/dashboard');  // Redirect back to dashboard
+      navigate('/dashboard');
     } catch (err) {
       console.error('Error creating event:', err);
       setError('Failed to create event. Please try again.');
@@ -126,6 +160,20 @@ const CreateEvent = () => {
           />
         </div>
 
+        {}
+        <div className="form-group">
+          <label htmlFor="google_maps_link">Google Maps Link:</label>
+          <input
+            type="text"
+            id="google_maps_link"
+            name="google_maps_link"
+            value={formData.google_maps_link}
+            onChange={handleChange}
+            placeholder="https://maps.google.com/..."
+            required
+          />
+        </div>
+
         <div className="form-group">
           <label htmlFor="max_participants">Maximum Participants:</label>
           <input
@@ -136,6 +184,34 @@ const CreateEvent = () => {
             onChange={handleChange}
             min="1"
             required
+          />
+        </div>
+
+        {}
+        <div className="form-group">
+          <label htmlFor="cost">Cost ($):</label>
+          <input
+            type="number"
+            step="0.01"
+            id="cost"
+            name="cost"
+            value={formData.cost}
+            onChange={handleChange}
+            min="0"
+            required
+          />
+        </div>
+
+        {}
+        <div className="form-group">
+          <label htmlFor="website">Website (Optional):</label>
+          <input
+            type="url"
+            id="website"
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+            placeholder="https://..."
           />
         </div>
 
@@ -155,6 +231,42 @@ const CreateEvent = () => {
             <option value="networking">Networking</option>
             <option value="other">Other</option>
           </select>
+        </div>
+
+        {}
+        <div className="form-group">
+          <label htmlFor="tagInput">Tags:</label>
+          <div className="tag-input-container">
+            <input
+              type="text"
+              id="tagInput"
+              name="tagInput"
+              value={formData.tagInput}
+              onChange={handleChange}
+              placeholder="Add tags and press Enter"
+            />
+            <button type="button" onClick={handleAddTag} className="add-tag-btn">
+              Add Tag
+            </button>
+          </div>
+          <div className="tags-container">
+            {formData.tags.map((tag, index) => (
+              <span key={index} className="tag">
+                {tag}
+                <button 
+                  type="button" 
+                  onClick={() => handleRemoveTag(tag)} 
+                  className="remove-tag-btn"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
+          </div>
+          {formData.tags.length > 0 && (
+            <div className="tags-preview">
+            </div>
+          )}
         </div>
 
         <div className="form-actions">
