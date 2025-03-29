@@ -22,4 +22,5 @@ type Event struct {
 	GoogleMapsLink string    `json:"google_maps_link"`          // Google Maps directions link
 	Website        string    `json:"website"`                   // Event website link
 	MaxParticipants uint      `json:"max_participants"`          // Add max_participants field (type: int)
+	ContactDetails  string    `json:"contact_details"`           // Contact details for event
 }

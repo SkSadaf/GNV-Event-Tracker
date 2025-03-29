@@ -3,6 +3,7 @@ package api
 import (
 	"backend/data"
 	"backend/database"
+	"backend/scraper"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,29 @@ func CreateEvent(c *gin.Context) {
 	var event data.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}) // Log the error message
+		return
+	}
+
+	// Check if the user exists based on organizer_id
+	var user data.User
+	if err := database.DB.Where("id = ?", event.OrganizerID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Create an organizer if user exists
+	organizer := data.Organizer{
+		ID:            user.ID,
+		Name:          user.Name,
+		Email:         user.Email,
+		Password:      user.Password,
+		Description:   fmt.Sprintf("This is the organizer User %d", user.ID),
+		ContactDetails: event.ContactDetails, // Save only if provided
+	}
+
+	// Save the organizer to the database if it doesn't already exist
+	if err := database.DB.FirstOrCreate(&organizer, data.Organizer{ID: user.ID}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create organizer"})
 		return
 	}
 
@@ -46,7 +70,12 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
-	// Return a success message with the created event ID
+	// Call PopulateLatLng to get lat/lng and save it
+	if err := scraper.PopulateLatLng(&event); err != nil {
+		log.Printf("Error populating latitude/longitude: %v", err)
+	}
+
+	// Return success response with event ID
 	c.JSON(http.StatusCreated, gin.H{
 		"message":  "Event created successfully",
 		"event_id": event.ID,
