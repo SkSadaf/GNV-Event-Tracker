@@ -15,16 +15,20 @@ const EventDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
+  const [attendeeCount, setAttendeeCount] = useState(0);
 
   const API_URL = 'http://localhost:8080';
 
-  // Fetch event details and check registration status
+  // Fetch event details, registration status, and attendee count
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch event details
         const eventResponse = await axios.get(`${API_URL}/GetEvent/${eventId}`);
         setEventDetails(eventResponse.data);
+        
+        // Fetch the list of attendees to get the count
+        fetchAttendeeCount();
         
         // Check if user is logged in
         if (userId) {
@@ -53,6 +57,17 @@ const EventDetails = () => {
 
     fetchData();
   }, [eventId, userId]);
+
+  // Function to fetch attendee count
+  const fetchAttendeeCount = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/event/${eventId}/users`);
+      const attendees = response.data;
+      setAttendeeCount(attendees.length);
+    } catch (err) {
+      console.error('Error fetching attendee count:', err);
+    }
+  };
 
   // Function to fetch comments
   const fetchComments = async () => {
@@ -89,6 +104,8 @@ const EventDetails = () => {
         }
       );
       setIsRegistered(true);
+      // Update attendee count after successful registration
+      fetchAttendeeCount();
       alert('Registration successful!');
     } catch (err) {
       console.error('Error registering for event:', err);
@@ -152,15 +169,22 @@ const EventDetails = () => {
 
   return (
     <div className="event-details">
-      <h2>Event Details</h2>
+      <div className="event-header">
+        <h2>Event Details</h2>
+        <div className="attendee-count">
+          <p><strong>{attendeeCount}</strong> {attendeeCount === 1 ? 'person' : 'people'} going for this event</p>
+        </div>
+      </div>
+
       {eventDetails && (
         <>
-          <p>Event Name: {eventDetails.name}</p>
-          <p>Description: {eventDetails.description}</p>
-          <p>Date: {eventDetails.date}</p>
-          <p>Location: {eventDetails.location}</p>
+          <p><strong>Event Name:</strong> {eventDetails.name}</p>
+          <p><strong>Description:</strong> {eventDetails.description}</p>
+          <p><strong>Date:</strong> {eventDetails.date}</p>
+          <p><strong>Location:</strong> {eventDetails.location}</p>
+          
           <p>
-            Google Maps: {' '}
+            <strong>Google Maps:</strong> {' '}
             {eventDetails.google_maps_link ? (
               <a 
                 href={eventDetails.google_maps_link} 
@@ -174,7 +198,7 @@ const EventDetails = () => {
             )}
           </p>
           <p>
-            Directions: {' '}
+            <strong>Directions:</strong> {' '}
             <a 
               href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(eventDetails.location)}&origin=current+location`} 
               target="_blank" 
