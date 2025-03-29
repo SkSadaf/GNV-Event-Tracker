@@ -20,7 +20,7 @@ import (
 func CreateEvent(c *gin.Context) {
 	var event data.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}) // Log the error message
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -31,37 +31,36 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
-	// Create an organizer if user exists
-	organizer := data.Organizer{
-		ID:            user.ID,
-		Name:          user.Name,
-		Email:         user.Email,
-		Password:      user.Password,
-		Description:   fmt.Sprintf("This is the organizer User %d", user.ID),
-		ContactDetails: event.ContactDetails, // Save only if provided
+	// Check if the organizer already exists, otherwise create one
+	var organizer data.Organizer
+	if err := database.DB.Where("id = ?", event.OrganizerID).First(&organizer).Error; err != nil {
+		// Create new organizer if not found
+		organizer = data.Organizer{
+			ID:             user.ID,
+			Name:           user.Name,
+			Email:          user.Email,
+			Password:       user.Password,
+			Description:    fmt.Sprintf("This is the organizer User %d", user.ID),
+			ContactDetails: event.ContactDetails,
+		}
+
+		// Save the new organizer
+		if err := database.DB.Create(&organizer).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create organizer"})
+			return
+		}
 	}
 
-	// Save the organizer to the database if it doesn't already exist
-	if err := database.DB.FirstOrCreate(&organizer, data.Organizer{ID: user.ID}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create organizer"})
-		return
-	}
-
-	// Parse the date input (e.g., "2025-06-15")
+	// Format the date
 	parsedDate, err := time.Parse("2006-01-02", event.Date)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
 		return
 	}
+	event.Date = fmt.Sprintf("%s, %s", parsedDate.Format("January 2"), event.Time)
 
-	// Format the date to "June 15"
-	formattedDate := parsedDate.Format("January 2")
-
-
-	// Concatenate the formatted date and time
-	event.Date = fmt.Sprintf("%s, %s", formattedDate, event.Time)
-
-	// Set the Active flag to true by default
+	// Associate the event with the organizer
+	event.OrganizerID = organizer.ID
 	event.Active = true
 
 	// Create the event
@@ -70,17 +69,22 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
-	// Call PopulateLatLng to get lat/lng and save it
+	// Populate latitude/longitude
 	if err := scraper.PopulateLatLng(&event); err != nil {
 		log.Printf("Error populating latitude/longitude: %v", err)
 	}
 
-	// Return success response with event ID
-	c.JSON(http.StatusCreated, gin.H{
-		"message":  "Event created successfully",
-		"event_id": event.ID,
-	})
+	// Fetch event with Organizer details for response
+	var createdEvent data.Event
+	if err := database.DB.Preload("Organizer").First(&createdEvent, event.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event with organizer"})
+		return
+	}
+
+	// Return event with organizer details
+	c.JSON(http.StatusCreated, createdEvent)
 }
+
 
 // GetAllEvents retrieves all events
 func GetAllEvents(c *gin.Context) {
@@ -105,14 +109,15 @@ func GetEventByID(c *gin.Context) {
 	var event data.Event
 
 	// Find the event by ID
-	if err := database.DB.First(&event, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
-		return
-	}
+    // Preload the Organizer details
+    if err := database.DB.Preload("Organizer").First(&event, id).Error; err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
+        return
+    }
 
 	c.JSON(http.StatusOK, event)
 }
