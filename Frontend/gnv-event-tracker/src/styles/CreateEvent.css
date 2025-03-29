@@ -2,74 +2,169 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-  }
-  
-  .create-event-form {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
+}
+
+.create-event-page h2 {
+    color: #007bff;
     font-weight: bold;
-  }
-  
-  .form-group input,
-  .form-group textarea,
-  .form-group select {
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+}
+
+.create-event-page h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%); 
+    width: 150px;
+    height: 3px;
+    background-color: #007bff;
+    border-radius: 3px;
+}
+
+.create-event-form {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 16px;
-  }
-  
-  .form-group textarea {
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
     min-height: 100px;
     resize: vertical;
-  }
-  
-  .form-actions {
+}
+
+input[type="date"],
+input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 30px;
+    position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    position: static; 
+    margin-left: -20px; 
+    cursor: pointer;
+}
+
+.form-actions {
     display: flex;
     gap: 10px;
     justify-content: flex-start;
-    margin-top: 20px;
-  }
-  
-  .form-actions button {
+    margin-top: 30px;
+}
+
+.form-actions button {
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-  }
-  
-  .form-actions button[type="submit"] {
-    background-color: #4CAF50;
+    transition: all 0.3s ease;
+}
+
+.form-actions button[type="submit"] {
+    background-color: #007bff; 
     color: white;
-  }
-  
-  .form-actions button[type="submit"]:hover {
-    background-color: #45a049;
-  }
-  
-  .form-actions button[type="button"] {
+    font-weight: bold;
+    padding: 12px 28px;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.25);
+}
+
+.form-actions button[type="submit"]:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.35);
+}
+
+.form-actions button[type="button"] {
     background-color: #f44336;
     color: white;
-  }
-  
-  .form-actions button[type="button"]:hover {
+}
+
+.form-actions button[type="button"]:hover {
     background-color: #d32f2f;
-  }
-  
-  .error-message {
+}
+
+.error-message {
     color: red;
     margin-top: 20px;
-  }
+}
+
+
+.tag-input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.add-tag-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.add-tag-btn:hover {
+    background-color: #5a6268;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tag {
+    background-color: #e9ecef;
+    border-radius: 20px;
+    padding: 5px 12px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.remove-tag-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 6px;
+    padding: 0 4px;
+}
+
+.remove-tag-btn:hover {
+    color: #dc3545;
+}

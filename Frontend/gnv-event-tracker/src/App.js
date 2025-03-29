@@ -29,6 +29,7 @@ function App() {
           <Route path="/events" element={<HeaderLanding />} />
           <Route path="/events/:eventId" element={<HeaderLanding />} />
           <Route path="/map" element={<HeaderLanding />} />
+          <Route path="/create-event" element={<HeaderLanding />} />
         </Routes>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
