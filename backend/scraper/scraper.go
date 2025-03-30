@@ -3,7 +3,10 @@ package scraper
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -45,23 +48,21 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string)
 		log.Println("Error populating latitude/longitude:", err)
 	}
 
-
 	return nil
 }
 
-
 // removeNameFromLocation removes the name part from the location string and returns the address part
 func removeNameFromLocation(location string) string {
-    // Split the location string by spaces to find where the numeric address starts
-    parts := strings.Fields(location)
-    for i, part := range parts {
-        // Check if the part is numeric
-        if _, err := strconv.Atoi(part); err == nil {
-            // Return the location starting from the numeric address
-            return strings.Join(parts[i:], " ")
-        }
-    }
-    return "" // Return an empty string if no numeric address is found
+	// Split the location string by spaces to find where the numeric address starts
+	parts := strings.Fields(location)
+	for i, part := range parts {
+		// Check if the part is numeric
+		if _, err := strconv.Atoi(part); err == nil {
+			// Return the location starting from the numeric address
+			return strings.Join(parts[i:], " ")
+		}
+	}
+	return "" // Return an empty string if no numeric address is found
 }
 
 // PopulateLatLng updates the latitude and longitude for events in the database
@@ -122,8 +123,6 @@ func PopulateLatLng(event *data.Event) error {
 
 	return nil
 }
-
-
 
 func CleanWhiteSpaces(str string) string {
 	// Preserve trailing newline
@@ -238,4 +237,93 @@ func ScrapeVisitGainesville() {
 
 	// Start scraping from page 1
 	scrapePage(page)
+}
+
+const eventBriteApiKey = "CGJWPBL44J57LJZQXS74"
+
+type EventbriteResponse struct {
+	Events []struct {
+		Name struct {
+			Text string `json:"text"`
+		} `json:"name"`
+		Start struct {
+			Local string `json:"local"`
+		} `json:"start"`
+		Venue struct {
+			Address struct {
+				Address1   string `json:"address_1"`
+				City       string `json:"city"`
+				Region     string `json:"region"`
+				PostalCode string `json:"postal_code"`
+			} `json:"address"`
+		} `json:"venue"`
+		URL         string `json:"url"`
+		Description struct {
+			Text string `json:"text"`
+		} `json:"description"`
+	} `json:"events"`
+}
+
+func ScrapeEventBrite() {
+	apiURL := "https://www.eventbriteapi.com/v3/events/search/?location.address=Gainesville"
+	req, _ := http.NewRequest("GET", apiURL, nil)
+	req.Header.Set("Authorization", "Bearer "+eventBriteApiKey)
+
+	// Print the full response body
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Response Body:", string(body))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		fmt.Println("Error:", resp.Status)
+		return
+	}
+
+	var result EventbriteResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		fmt.Println("Error decoding JSON response:", err)
+		return
+	}
+
+	for _, event := range result.Events {
+		// Clean text and handle missing fields
+		cleanedEventName := CleanWhiteSpaces(event.Name.Text)
+		cleanedEventDate := CleanWhiteSpaces(event.Start.Local)
+
+		// Handle missing location gracefully
+		locationParts := []string{}
+		if event.Venue.Address.Address1 != "" {
+			locationParts = append(locationParts, event.Venue.Address.Address1)
+		}
+		if event.Venue.Address.City != "" {
+			locationParts = append(locationParts, event.Venue.Address.City)
+		}
+		if event.Venue.Address.Region != "" {
+			locationParts = append(locationParts, event.Venue.Address.Region)
+		}
+		cleanedEventLocation := strings.Join(locationParts, ", ")
+
+		// Handle missing description
+		cleanedEventDescription := CleanWhiteSpaces(event.Description.Text)
+
+		// Generate Google Maps link
+		googleMapsLink := "https://www.google.com/maps?q=" + url.QueryEscape(cleanedEventLocation)
+
+		// Insert event into database
+		err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription)
+		if err != nil {
+			log.Println("Error inserting event into database:", err)
+		}
+
+		// Print event details
+		fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nGoogle Maps Link: %s\n\n",
+			cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+	}
 }

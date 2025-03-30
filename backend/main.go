@@ -68,8 +68,6 @@ func main() {
 	r.GET("/events/:event_id/GetAllComments", api.GetAllComments)
 	r.GET("/event/:event_id/users", api.GetUsersByEvent)
 
-
-
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
 
@@ -84,16 +82,16 @@ func main() {
 	go func() {
 		defer wg.Done()
 		log.Println("Starting server on port:", port)
-		
+
 		// Create a listener
 		listener, err := net.Listen("tcp", ":"+port)
 		if err != nil {
 			log.Fatalf("Failed to create listener: %v", err)
 		}
-		
+
 		// Signal that server is ready
 		close(serverStarted)
-		
+
 		// Serve using the listener
 		if err := r.RunListener(listener); err != nil {
 			log.Fatalf("Server failed to start: %v", err)
@@ -107,7 +105,8 @@ func main() {
 	// Start scraper after the server begins running
 	go func() {
 		log.Println("Starting scraper...")
-		scraper.ScrapeVisitGainesville()
+		// scraper.ScrapeVisitGainesville()
+		scraper.ScrapeEventBrite()
 		log.Println("Scraping completed")
 	}()
 
