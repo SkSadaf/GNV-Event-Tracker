@@ -106,7 +106,7 @@ func main() {
 	go func() {
 		log.Println("Starting scraper...")
 		// scraper.ScrapeVisitGainesville()
-		scraper.ScrapeEventBrite()
+		scraper.ScrapeGainesvilleSun()
 		log.Println("Scraping completed")
 	}()
 
