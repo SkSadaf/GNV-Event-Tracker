@@ -75,6 +75,23 @@ describe('<SignUp />', () => {
     cy.get('input#password').should('have.value', '')
   })
 
+  it('navigates to login page after successful signup', () => {
+    cy.intercept('POST', 'http://localhost:8080/register', {
+      statusCode: 200,
+      body: { message: 'Signup successful' }
+    }).as('signupRequest')
+  
+    cy.get('input#username').type('Jane Doe')
+    cy.get('input#email').type('jane@example.com')
+    cy.get('input#password').type('password123')
+    cy.get('form').submit()
+  
+    cy.wait('@signupRequest')
+    cy.get('.success-message').should('contain', 'You have successfully signed up!')
+  
+    cy.location('pathname', { timeout: 3000 }).should('eq', '/login')
+  })
+  
   it('requires all fields to be filled', () => {
     cy.get('form').submit()
     cy.get('input#username:invalid').should('exist')
