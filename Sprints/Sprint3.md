@@ -33,28 +33,40 @@
 
 <h4>Unit tests:</h4>
 <ul>
-<li>Login page</li>
-  
-![login](https://github.com/user-attachments/assets/01994aad-01a1-4fb1-82bb-25c83cfb1fa0)
-  
-<li>SignUp page</li>
+<li><b>Login</b></li>
 
-![signup](https://github.com/user-attachments/assets/a5509424-530f-46bb-8bfc-89ece520d0e8)
+![login test](https://github.com/user-attachments/assets/e0a205aa-ab37-4935-86da-786340186a93)
+  
+<li><b>Signup</b></li>
+
+![signup test](https://github.com/user-attachments/assets/f6032a07-99e7-4b2e-9fa7-43d3feec4ed8)
+
+<li><b>Create Event</b></li>
+
+![createevent test](https://github.com/user-attachments/assets/fbe7b8f4-c6a1-497f-af4d-bbe6f4491e61)
 </ul>
 
 <h4>Cypress e2e tests:</h4>
 <ul>
-<li>Homepage</li>
+<li><b>Homepage</b></li>
   
-![homepage](https://github.com/user-attachments/assets/8e5b41c1-9903-42a2-b742-1c74602569a0)
+![homepage test](https://github.com/user-attachments/assets/c617d1e0-d906-427e-a3c1-72669014511e)
   
-<li>Dashboard</li>
+<li><b>Dashboard</b></li>
 
-![dashboard](https://github.com/user-attachments/assets/454370c9-56e1-4354-9054-40b6b7be14bf)
+![dashboard test](https://github.com/user-attachments/assets/c66f69c7-af6a-4eb2-acf8-d5e13a424acc)
 
-<li>All Events page</li>
+<li><b>All Events page</b></li>
 
-![allevents](https://github.com/user-attachments/assets/a9ca3ee2-21aa-45f0-86ef-cda229ae9b21)
+![allevents test](https://github.com/user-attachments/assets/5f0e1e32-f38b-42e8-9a17-ea33483d3110)
+
+<li><b>Map page</b></li>
+
+![mappage test](https://github.com/user-attachments/assets/9212b306-28ad-4778-9032-97163b2e17bc)
+
+<li><b>Event Details Page</b></li>
+
+![eventdetails test](https://github.com/user-attachments/assets/572e3ba6-c7d7-4a42-bd3c-ba2dcb163fe5)
 </ul>
 
 **Running cypress tests:**
