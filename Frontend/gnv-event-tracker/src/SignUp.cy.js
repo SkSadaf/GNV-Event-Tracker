@@ -1,10 +1,17 @@
 import React from 'react'
 import SignUp from './SignUp'
+import { BrowserRouter as Router } from 'react-router-dom';
+import * as router from 'react-router';
+import { mount } from '@cypress/react';
 
 describe('<SignUp />', () => {
   beforeEach(() => {
-    cy.mount(<SignUp />)
-  })
+    mount(
+      <Router>
+        <SignUp />
+      </Router>
+    );
+  });
 
   it('renders the signup form', () => {
     cy.get('h2').should('contain', 'Sign Up')
