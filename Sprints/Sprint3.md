@@ -98,13 +98,14 @@ npx cypress open
 POST
 
 **URL:**
-localhost:8080/CreateEvent
+http://localhost:8080/CreateEvent
 
-![image](https://github.com/user-attachments/assets/05e52de7-9853-4be7-8eac-06aafe3bb830)
+<img width="1006" alt="image" src="https://github.com/user-attachments/assets/24c25ef5-ba71-4d02-80a7-b02b64a71941" />
 
 **Sample Response**
 
-![image](https://github.com/user-attachments/assets/8b9f02f4-d877-4857-8192-baedaa60bc14)
+<img width="1010" alt="image" src="https://github.com/user-attachments/assets/0d5cb10c-2910-44fb-b057-c47079059c04" />
+
 
 **2. EditEvent API**
 
@@ -355,6 +356,47 @@ http://localhost:8080/user/2/GetUserRegisteredEvents
 
 <img width="1056" alt="image" src="https://github.com/user-attachments/assets/452d97d3-5160-4b87-8bbc-1e923e92cd72" />
 
+**19. UnmapUserFromEvent API**
+
+**Request Method:**
+POST
+
+**URL:**
+http://localhost:8080/unmapUserFromEvent
+
+<img width="1003" alt="image" src="https://github.com/user-attachments/assets/73c3bebc-9ef5-4ab7-bb40-ed552a6f9bf7" />
+
+**Sample Response**
+
+<img width="997" alt="image" src="https://github.com/user-attachments/assets/a9dd8a31-3b54-4961-b1cb-a89c699cbdbc" />
+
+**20. GetAllComments API**
+
+**Request Method:**
+GET
+
+**URL:**
+http://localhost:8080/events/1/GetAllComments
+
+<img width="1001" alt="image" src="https://github.com/user-attachments/assets/58dc5de9-c6bc-4265-b465-daa7b521ec73" />
+
+**Sample Response**
+
+<img width="1016" alt="image" src="https://github.com/user-attachments/assets/6bee2f81-6dfc-43e9-b487-0a5acbc2a5c1" />
+
+**21. GetUsersByEvent API**
+
+**Request Method:**
+GET
+
+**URL:**
+http://localhost:8080/event/1/users
+
+<img width="1012" alt="image" src="https://github.com/user-attachments/assets/fe040ecd-d826-4f6d-933d-a6ffe2afccef" />
+
+**Sample Response**
+
+<img width="1000" alt="image" src="https://github.com/user-attachments/assets/8ab4c3b1-74bd-4862-88ca-6669e97f3ebe" />
 
 <h3>Backend Unit Tests</h3>
 <ul>
@@ -363,12 +405,11 @@ http://localhost:8080/user/2/GetUserRegisteredEvents
   <li>Organizer API tests</li>
 </ul>
 
-![image](https://github.com/user-attachments/assets/d63a3dd2-ba3c-4303-80c2-e3f8a88ecac4)
+<img width="1089" alt="image" src="https://github.com/user-attachments/assets/edc382be-3a6c-49a6-8be6-3b62bf6f933e" />
 
-![image](https://github.com/user-attachments/assets/6db10fc4-568d-4c7b-98d3-be8388c76bda)
+<img width="875" alt="image" src="https://github.com/user-attachments/assets/646a6f3a-c374-4c08-a321-e11efcc161d1" />
 
-![image](https://github.com/user-attachments/assets/1fa056e5-cbcf-4912-9951-e22f545e387c)
-
+<img width="802" alt="image" src="https://github.com/user-attachments/assets/a68b66c0-0fbe-4bdc-b7cf-a28f641aa636" />
 
 
 **Running unit tests:**
