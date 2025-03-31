@@ -121,6 +121,7 @@ localhost:8080/EditEvent/{event.ID}
 
 ![image](https://github.com/user-attachments/assets/1f9b0889-6c0d-42e2-bbe7-11d6bc8e6ab8)
 
+
 **3. DeleteEvent API**
 
 **Request Method:**
@@ -135,6 +136,7 @@ localhost:8080/DeleteEvent/{event.ID}
 
 ![image](https://github.com/user-attachments/assets/c2a289ae-6779-4fbe-8b10-96d60ae97b3a)
 
+
 **4. GetAllEvents API**
 
 **Request Method:**
@@ -148,6 +150,7 @@ localhost:8080/GetAllEvents
 **Sample Response**
 
 ![image](https://github.com/user-attachments/assets/7520b521-c00f-46f5-adee-38f07bcec321)
+
 
 **5. GetEventByID API**
 
@@ -179,6 +182,7 @@ localhost:8080/events/{event.ID}/comments
 
 ![image](https://github.com/user-attachments/assets/a039ef5b-27d3-45d7-ac86-4195686667b8)
 
+
 **7. CreateOrganizer API**
 
 **Request Method:**
@@ -192,6 +196,7 @@ localhost:8080/createOrganizer
 **Sample Response**
 
 ![image](https://github.com/user-attachments/assets/0550833b-6d43-4aeb-97c5-54fff2c64518)
+
 
 **8. DeleteOrganizer API**
 
@@ -207,6 +212,7 @@ localhost:8080/deleteOrganizer/{event.ID}
 
 ![image](https://github.com/user-attachments/assets/7d19e2ab-2a4f-4f77-8271-997b9c0f7f18)
 
+
 **9. LoginOrganizer API**
 
 **Request Method:**
@@ -220,6 +226,7 @@ localhost:8080/loginOrganizer
 **Sample Response**
 
 ![image](https://github.com/user-attachments/assets/1af6fdad-66f7-4e33-bf88-8ca65035c93c)
+
 
 **10. AddUser API**
 
@@ -235,6 +242,7 @@ http://localhost:8080/addUser
 
 <img width="1035" alt="image" src="https://github.com/user-attachments/assets/72a43fc6-25e8-4b9d-8c88-ead2b54e695b" />
 
+
 **11. GetUserByID API**
 
 **Request Method:**
@@ -249,6 +257,7 @@ http://localhost:8080/user/1
 **Sample Response**
 
 <img width="1031" alt="image" src="https://github.com/user-attachments/assets/f65f4c02-49f0-4bbe-9de0-388d743805ba" />
+
 
 **12. EditUser API**
 
@@ -281,6 +290,7 @@ http://localhost:8080/users/1
 
 <img width="1026" alt="image" src="https://github.com/user-attachments/assets/125e8f0c-9711-4d26-b5f0-deb9fac08d9e" />
 
+
 **14. RegisterUser API**
 
 **Request Method:**
@@ -310,6 +320,7 @@ http://localhost:8080/LoginUser
 **Sample Response**
 
 <img width="1030" alt="image" src="https://github.com/user-attachments/assets/3d33dc72-46e3-41e1-9e6b-4b6f6227ac82" />
+
 
 **16. LogoutUser API**
 
@@ -358,6 +369,7 @@ http://localhost:8080/user/2/GetUserRegisteredEvents
 
 <img width="1056" alt="image" src="https://github.com/user-attachments/assets/452d97d3-5160-4b87-8bbc-1e923e92cd72" />
 
+
 **19. UnmapUserFromEvent API**
 
 **Request Method:**
@@ -373,6 +385,7 @@ http://localhost:8080/unmapUserFromEvent
 
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/a9dd8a31-3b54-4961-b1cb-a89c699cbdbc" />
 
+
 **20. GetAllComments API**
 
 **Request Method:**
@@ -386,6 +399,7 @@ http://localhost:8080/events/1/GetAllComments
 **Sample Response**
 
 <img width="1016" alt="image" src="https://github.com/user-attachments/assets/6bee2f81-6dfc-43e9-b487-0a5acbc2a5c1" />
+
 
 **21. GetUsersByEvent API**
 
@@ -413,6 +427,7 @@ http://localhost:8080/event/1/users
 <img width="875" alt="image" src="https://github.com/user-attachments/assets/646a6f3a-c374-4c08-a321-e11efcc161d1" />
 
 <img width="802" alt="image" src="https://github.com/user-attachments/assets/a68b66c0-0fbe-4bdc-b7cf-a28f641aa636" />
+
 
 
 **Running unit tests:**
