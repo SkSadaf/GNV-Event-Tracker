@@ -157,11 +157,13 @@ GET
 **URL:**
 localhost:8080/GetEvent/{event.ID}
 
-![image](https://github.com/user-attachments/assets/cff6766d-c193-4f3f-a6a5-cb85f2b33210)
+<img width="1010" alt="image" src="https://github.com/user-attachments/assets/525295bb-c04c-4294-8ce0-b055ad8a2541" />
+
 
 **Sample Response**
 
-![image](https://github.com/user-attachments/assets/e8ff8c7b-9bf9-423c-b153-3690feb57ae0)
+<img width="1002" alt="image" src="https://github.com/user-attachments/assets/76085d20-e78e-4358-b52e-854764327b62" />
+
 
 **6. AddCommentToEvent API**
 
