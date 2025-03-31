@@ -1,11 +1,11 @@
-<h1>Sprint 2 Report</h1>
+<h1>Sprint 3 Report</h1>
 
 <h2>Tasks Completed During Sprint 2</h2>
 <ul>
-  <li>Integrated backend and frontend</li>
+  <li>Integrated backend and frontend for Interactive Map view, User Profile, Individual Event Page functionalities, and Creating Events</li>
   <li>Wrote backend API unit tests</li>
   <li>Implemented Cypress tests for frontend</li>
-  <li>Developed a web scraper for collecting event data</li>
+  <li>Enriched web scraping capabilities with additional functionalities for collecting event data</li>
 </ul>
 <h2>Frontend</h2>
 
