@@ -21,7 +21,7 @@ type Event struct {
 	Link string `json:"link"`
 }
 
-func InsertEventIntoDB(name, date, location, googleMapsLink, description string) error {
+func InsertEventIntoDB(name, date, location, googleMapsLink, description string, tags ...string) error {
 	// Check if the event already exists in the database
 	var existingEvent data.Event
 	if err := database.DB.Where("name = ? AND date = ? AND location = ?", name, date, location).First(&existingEvent).Error; err == nil {
@@ -36,6 +36,7 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string)
 		Location:       location,
 		Description:    description,
 		GoogleMapsLink: googleMapsLink,
+		Tags:           tags,
 	}
 	if err := database.DB.Create(&event).Error; err != nil {
 		return err
@@ -147,6 +148,17 @@ func CleanWhiteSpaces(str string) string {
 	return str
 }
 
+func RemoveWhiteSpaces(str string) string {
+	// This function removes all whitespace characters from the string
+	// including spaces, tabs, and newlines.
+
+	// Use a regular expression to replace all whitespace characters with an empty string
+	re := regexp.MustCompile(`\s+`)
+	str = re.ReplaceAllString(str, "")
+
+	return str
+}
+
 func ScrapeVisitGainesville() {
 
 	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
@@ -254,6 +266,7 @@ func ScrapeGainesvilleSun() {
 				Title       string `json:"title"`
 				StartDate   string `json:"start_date"`
 				Description string `json:"description"`
+				Keywords    string `json:"keywords"`
 				Venue       struct {
 					Name      string  `json:"name"`
 					Address1  string  `json:"address_1"`
@@ -285,9 +298,10 @@ func ScrapeGainesvilleSun() {
 				event.Venue.Name)
 			cleanedEventLocation := CleanWhiteSpaces(eventLocation)
 			cleanedEventDescription := CleanWhiteSpaces(event.Description)
+			cleanedEventTags := RemoveWhiteSpaces(event.Keywords)
 			googleMapsLink := "https://www.google.com/maps?q=" + url.QueryEscape(cleanedEventLocation)
 
-			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription)
+			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, cleanedEventTags)
 			if err != nil {
 				log.Println("Error inserting event into database:", err)
 			}
