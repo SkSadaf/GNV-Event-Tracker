@@ -4,28 +4,29 @@
 <ul>
   <li>Integrated backend and frontend for Interactive Map view, User Profile, Individual Event Page functionalities, and Creating Events</li>
   <li>Wrote backend API unit tests</li>
-  <li>Implemented Cypress tests for frontend</li>
+  <li>Implemented cypress tests for frontend</li>
   <li>Enriched web scraping capabilities with additional functionalities for collecting event data</li>
 </ul>
 <h2>Frontend</h2>
 
 <h3>Tasks Completed</h3>
 <ul>
-  <li>Integrated SignUp Functionality with Go Backend API</li>
-  <li>Integrated Login Functionality with Go Backend API</li>
-  <li>Created Dashboard Page</li>
-  <li>Created All Events page</li>
-  <li>Created page for each event</li>
-  <li>Implemented logout functionality</li>
-  <li>Implemented Event Registration functionality</li>
-  <li>Integrated All Events Display with Go Backend API</li>
-  <li>Integrated Dashboard functionality with Go Backend API</li>
-  <li>Implemented Cypress Tests for SignUp Page</li>
-  <li>Implemented Cypress Tests for LoginPage</li>
-  <li>Implemented Cypress Tests for Homepage</li>
-  <li>Implemented Cypress tests for Dashboard</li>
-  <li>Implemented Cypress Tests for All Events page</li>
-  <li>Integrated Logout functionality with Go Backend API</li>
+  <li>Created Map Page</li>
+  <li>Integrated Map Page functionality with backend api</li>
+  <li>Changed register button to already registered if the user is registered</li>
+  <li>Added comment section functionality in each events page</li>
+  <li>Implemented cypress Test for MapPage</li>
+  <li>Implemented cypress test for individual event details page</li>
+  <li>Implemented unregister functionality from event button on dashboard</li>
+  <li>Made the Logged in pages not visible without user logging in </li>
+  <li>Routing to signup page after signing out</li>
+  <li>Addeded a feature to display the count of people going to the event in each event's page</li>
+  <li>Added cypress unit test for sign up page routing</li>
+  <li>Implemented create event functionality</li>
+  <li>Implement cypress unit test for create event functionality</li>
+  <li>Integrated Logout in user profile section</li>
+  <li>Added view Profile, Edit Profile, Delete Profile features in the profile section</li>
+  <li>Integrated profile section functionality with backend api</li>
 </ul>
 
 <h3>List unit tests and Cypress test for frontend</h3>
