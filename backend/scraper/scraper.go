@@ -21,7 +21,7 @@ type Event struct {
 	Link string `json:"link"`
 }
 
-func InsertEventIntoDB(name, date, location, googleMapsLink, description string, tags string, imageURL string) error {
+func InsertEventIntoDB(name, date, location, googleMapsLink, description string, category string, tags string, imageURL string) error {
 	// Check if the event already exists in the database
 	var existingEvent data.Event
 	if err := database.DB.Where("name = ? AND date = ? AND location = ?", name, date, location).First(&existingEvent).Error; err == nil {
@@ -36,6 +36,7 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string,
 		Location:       location,
 		Description:    description,
 		GoogleMapsLink: googleMapsLink,
+		Category:       category,
 		Tags:           tags,
 		ImageURL:       imageURL,
 	}
@@ -192,7 +193,7 @@ func ScrapeVisitGainesville() {
 		})
 		cleanedEventDescription := CleanWhiteSpaces(eventDescription)
 
-		err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "bruh", "brah")
+		err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "twin", "bruh", "brah")
 		if err != nil {
 			log.Println("Error inserting event into database:", err)
 		}
@@ -269,6 +270,7 @@ func ScrapeGainesvilleSun() {
 				StartDate   string `json:"start_date"`
 				Description string `json:"description"`
 				Keywords    string `json:"keywords"`
+				Category    string `json:"category_name"`
 				Venue       struct {
 					Name      string  `json:"name"`
 					Address1  string  `json:"address_1"`
@@ -296,20 +298,25 @@ func ScrapeGainesvilleSun() {
 		for _, event := range events.RawEvents {
 			cleanedEventName := CleanWhiteSpaces(event.Title)
 			cleanedEventDate := CleanWhiteSpaces(event.StartDate)
-			eventLocation := fmt.Sprintf("%s %s %s %s %s %s",
+			eventLocation := fmt.Sprintf("%s %s %s %s %s",
+				// event.Venue.Name,
 				event.Venue.Address1,
 				event.Venue.Address2,
 				event.Venue.Town,
 				event.Venue.Country,
 				event.Venue.PostCode,
-				event.Venue.Name)
+			)
 			cleanedEventLocation := CleanWhiteSpaces(eventLocation)
 			cleanedEventDescription := CleanWhiteSpaces(event.Description)
 			cleanedEventTags := RemoveWhiteSpaces(event.Keywords)
 			cleanedImageURL := RemoveWhiteSpaces(event.Images[0].Original.URL)
-			googleMapsLink := "https://www.google.com/maps?q=" + url.QueryEscape(cleanedEventLocation)
+			category := event.Category
 
-			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, cleanedEventTags, cleanedImageURL)
+			escapedAddress := url.QueryEscape(cleanedEventLocation)
+			mapsQuery := fmt.Sprintf("address=%s", escapedAddress)
+			googleMapsLink := "https://www.google.com/maps?q=" + mapsQuery
+
+			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedEventTags, cleanedImageURL)
 			if err != nil {
 				log.Println("Error inserting event into database:", err)
 			}
