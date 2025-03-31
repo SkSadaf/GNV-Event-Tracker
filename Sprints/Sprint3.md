@@ -366,7 +366,8 @@ POST
 **URL:**
 http://localhost:8080/unmapUserFromEvent
 
-<img width="1003" alt="image" src="https://github.com/user-attachments/assets/73c3bebc-9ef5-4ab7-bb40-ed552a6f9bf7" />
+<img width="1009" alt="image" src="https://github.com/user-attachments/assets/ead74f4c-4546-4cf7-a0f9-613b6903358a" />
+
 
 **Sample Response**
 
