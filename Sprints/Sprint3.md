@@ -79,11 +79,14 @@ npx cypress open
 
 <h3>Tasks Completed</h3>
 <ul>
-  <li>Created initial version of web scraper for collecting event data</li>
-  <li>Created an Organizer object and API for users who create events</li>
-  <li>Created Go Unit tests for user, events, and organizer APIs</li>
-  <li>Created APIs for Get event details by event ID, Get all registered events for user, map/register user to event, Add Organizer, Delete Organizer, Login Organizer, Add comment to event, and Logout user</li>
-  <li>Add additional required columns to Users and Events DB, User-Event DB mapping, Event-organizer and Event-organizerID DB mapping</li>
+  <li>Added latitude and longitude values from scraper and user-created events</li>
+  <li>Created APIs for unmap user from event, get all comments, and get user list for an event</li>
+  <li>Created Go Unit tests added for new APIs and verified for existing APIs</li>
+  <li>Modified Create Event to handle user-created events and saved user details as organizer in DB once user creates an event<li>
+  <li>Added organizer details object and organizer ID for each event</li>
+  <li>Modified scraper to run after server start</li>
+  <li>Added additional required columns Events and Comment DB</li>
+  <li>Modified tags datatype and date time formatting in DB while creating event</li>
   
 </ul>
 
