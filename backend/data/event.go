@@ -14,11 +14,12 @@ type Event struct {
 	Latitude       float64   `json:"latitude"`                  // Latitude for location
 	Longitude      float64   `json:"longitude"`                 // Longitude for location
 	Category       string    `json:"category"`                  // Category of the event
-	Tags           []string  `json:"tags" gorm:"type:text"`     // List of tags
+	Tags           string    `json:"tags" gorm:"type:text"`     // List of tags
 	Cost           float64   `json:"cost"`                      // Cost of the event
-	Comments string `json:"comments" gorm:"type:text"`			// List of comments
+	Comments       string    `json:"comments" gorm:"type:text"` // List of comments
 	Rating         float64   `json:"rating"`                    // Event rating
 	Active         bool      `json:"active"`                    // Is the event active
 	GoogleMapsLink string    `json:"google_maps_link"`          // Google Maps directions link
 	Website        string    `json:"website"`                   // Event website link
+	ImageURL       string    `json:"image_url"`                 // URL for the event image
 }
