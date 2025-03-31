@@ -3,7 +3,7 @@
 <h2>Tasks Completed During Sprint 3</h2>
 <ul>
   <li>Integrated backend and frontend for Interactive Map view, User Profile, Individual Event Page functionalities, and Creating Events</li>
-  <li>Wrote backend API unit tests</li>
+  <li>Created backend APIs and unit tests</li>
   <li>Implemented cypress tests for frontend</li>
   <li>Enriched web scraping capabilities with additional functionalities for collecting event data</li>
 </ul>
