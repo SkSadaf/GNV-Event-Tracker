@@ -2,10 +2,11 @@ import React from 'react';
 import Login from './Login';
 import { BrowserRouter as Router } from 'react-router-dom';
 import * as router from 'react-router';
+import { mount } from '@cypress/react';
 
 describe('<Login />', () => {
   beforeEach(() => {
-    cy.mount(
+    mount(
       <Router>
         <Login />
       </Router>
@@ -45,7 +46,7 @@ describe('<Login />', () => {
     const navigate = cy.stub().as('navigate');
     cy.stub(router, 'useNavigate').returns(navigate);
 
-    cy.mount(
+    mount(
       <Router>
         <Login />
       </Router>
@@ -61,7 +62,6 @@ describe('<Login />', () => {
     cy.get('button[type="submit"]').click();
 
     cy.wait('@loginRequest');
-    // cy.get('@navigate').should('have.been.calledWith', '/landing');
   });
 
   it('handles login error', () => {
@@ -77,17 +77,4 @@ describe('<Login />', () => {
     cy.wait('@loginRequest');
     cy.get('.error-message').should('have.text', 'Invalid credentials');
   });
-  
-  // it('handles network error', () => {
-  //   cy.intercept('POST', 'http://localhost:8080/LoginUser', {
-  //     forceNetworkError: true,
-  //   }).as('loginRequest');
-
-  //   cy.get('input[type="email"]').type('test@example.com');
-  //   cy.get('input[type="password"]').type('password123');
-  //   cy.get('button[type="submit"]').click();
-
-  //   cy.wait('@loginRequest');
-  //   cy.get('.error-message').should('have.text', 'An error occurred while logging in. Please try again later.');
-  // });
 });

@@ -1,23 +1,142 @@
-/* styles/EventDetails.css */
 .event-details {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .event-details h2 {
-    color: #333;
-  }
-  
-  .event-details button {
-    background-color: #4CAF50;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-  }
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.event-details h2 {
+  color: #333;
+  margin: 0;
+}
+
+.attendee-count {
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  padding: 8px 15px;
+  display: inline-block;
+  border-left: 4px solid #007bff;
+}
+
+.attendee-count p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.attendee-count strong {
+  color: #007bff;
+  font-size: 18px;
+}
+
+/* Button styling */
+.event-details button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.registered-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: default;
+}
+
+.register-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.register-button:hover {
+  background-color: #0069d9;
+}
+
+/* Comments Section Styling */
+.comments-section {
+  margin-top: 40px;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.comments-section h3 {
+  margin-bottom: 20px;
+}
+
+.comment-form {
+  margin-bottom: 30px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 10px;
+}
+
+.comment-button {
+  background-color: #007bff !important;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-button:hover {
+  background-color: #0069d9 !important;
+}
+
+.comment-button:disabled {
+  background-color: #cccccc !important;
+  cursor: not-allowed;
+}
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.comment {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 15px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.comment-date {
+  color: #666;
+  font-size: 0.8em;
+}
+
+.comment-content {
+  line-height: 1.5;
+  white-space: pre-line;
+}

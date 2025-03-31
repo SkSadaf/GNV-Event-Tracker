@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './styles/SignUp.css'; 
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
   const [name, setUsername] = useState('');
@@ -7,10 +8,9 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Replace with your actual API URL
   const API_URL = 'http://localhost:8080/register';
-  // const API_KEY = 'YOUR_API_KEY';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,8 +22,6 @@ const SignUp = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${API_KEY}`, // If your API requires authentication
-          // Add any other required headers
         },
         body: JSON.stringify({
           name,
@@ -43,9 +41,9 @@ const SignUp = () => {
       setEmail('');
       setPassword('');
       
-      // Handle successful signup (e.g., redirect to login page or dashboard)
-      // You might want to use React Router for navigation
-      // history.push('/login');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
 
     } catch (err) {
       setError(err.message);
