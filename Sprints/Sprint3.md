@@ -82,7 +82,7 @@ npx cypress open
   <li>Added latitude and longitude values from scraper and user-created events</li>
   <li>Created APIs for unmap user from event, get all comments, and get user list for an event</li>
   <li>Created Go Unit tests added for new APIs and verified for existing APIs</li>
-  <li>Modified Create Event to handle user-created events and saved user details as organizer in DB once user creates an event<li>
+  <li>Modified Create Event to handle user-created events and saved user details as organizer in DB once user creates an event</li>
   <li>Added organizer details object and organizer ID for each event</li>
   <li>Modified scraper to run after server start</li>
   <li>Added additional required columns Events and Comment DB</li>
