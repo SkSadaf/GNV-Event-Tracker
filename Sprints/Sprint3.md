@@ -89,6 +89,8 @@ npx cypress open
   <li>Modified tags datatype and date time formatting in DB while creating event</li>
   <li>Added image data to events</li>
   <li>Scraper now collects event tags and categories</li>
+  <li>Generated Google Maps links for events based off addresses</li>
+  <li>Created initial framework for duplicate event checking (levenshtein method)</li>
   
 </ul>
 
