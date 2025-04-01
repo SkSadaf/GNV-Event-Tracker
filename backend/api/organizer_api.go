@@ -93,6 +93,16 @@ func LoginOrganizer(c *gin.Context) {
 	})
 }
 
+func LogoutOrganizer(c *gin.Context) {
+	// This function would typically clear the session or token for the organizer
+	// For simplicity, we will just return a success message
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "Organizer logged out successfully",
+		"logged_in": false,
+	})
+}
+
 func GetOrganizerByID(c *gin.Context) {
 	id := c.Param("id")
 
