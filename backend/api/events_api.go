@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -250,6 +251,52 @@ func GetAllComments(c *gin.Context) {
 
 	// Return the formatted list of comments
 	c.JSON(http.StatusOK, gin.H{"comments": comments})
+}
+
+func AddLikeToComment(c *gin.Context) {
+	// Get event ID from URL parameter
+	eventID := c.Param("event_id")
+	commentIndex := c.Param("comment_index") // Index of the comment in the array
+
+	// Fetch event from the database
+	var event data.Event
+	if err := database.DB.First(&event, eventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	// Parse the JSON comments field
+	var comments []data.Comment
+	if err := json.Unmarshal([]byte(event.Comments), &comments); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse comments"})
+		return
+	}
+
+	// Convert commentIndex to int
+	index, err := strconv.Atoi(commentIndex)
+	if err != nil || index < 0 || index >= len(comments) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment index"})
+		return
+	}
+
+	// Increment the like count for the specific comment
+	comments[index].Likes++
+
+	// Marshal the updated comments back to JSON
+	commentsJSON, err := json.Marshal(comments)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
+		return
+	}
+
+	event.Comments = string(commentsJSON)
+
+	if err := database.DB.Save(&event).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save event"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Like added successfully"})
 }
 
 func AddLikeToEvent(c *gin.Context) {
