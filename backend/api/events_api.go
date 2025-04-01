@@ -85,22 +85,17 @@ func CreateEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdEvent)
 }
 
-
 // GetAllEvents retrieves all events
 func GetAllEvents(c *gin.Context) {
 
-    var events []data.Event
-    if err := database.DB.Find(&events).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve events"})
-        return
-    }
+	var events []data.Event
+	if err := database.DB.Find(&events).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve events"})
+		return
+	}
 
-    c.JSON(http.StatusOK, events)
+	c.JSON(http.StatusOK, events)
 }
-
-
-
-
 
 // GetEventByID retrieves a single event by its ID
 func GetEventByID(c *gin.Context) {
@@ -109,15 +104,15 @@ func GetEventByID(c *gin.Context) {
 	var event data.Event
 
 	// Find the event by ID
-    // Preload the Organizer details
-    if err := database.DB.Preload("Organizer").First(&event, id).Error; err != nil {
-        if errors.Is(err, gorm.ErrRecordNotFound) {
-            c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
-            return
-        }
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
-        return
-    }
+	// Preload the Organizer details
+	if err := database.DB.Preload("Organizer").First(&event, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
+		return
+	}
 
 	c.JSON(http.StatusOK, event)
 }
@@ -175,64 +170,64 @@ func DeleteEvent(c *gin.Context) {
 
 // Add comment to event
 func AddCommentToEvent(c *gin.Context) {
-    var newComment data.Comment
-    id := c.Param("id")
+	var newComment data.Comment
+	id := c.Param("id")
 
-    // Find the event by ID
-    var event data.Event
-    if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
-        log.Printf("Error finding event: %v", err)
-        c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
-        return
-    }
+	// Find the event by ID
+	var event data.Event
+	if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
+		log.Printf("Error finding event: %v", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
 
-    // Bind the comment from the request body
-    if err := c.ShouldBindJSON(&newComment); err != nil {
-        log.Printf("Error binding JSON: %v", err)
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
-        return
-    }
+	// Bind the comment from the request body
+	if err := c.ShouldBindJSON(&newComment); err != nil {
+		log.Printf("Error binding JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+		return
+	}
 
-    // Set the EventID for the new comment
-    newComment.EventID = event.ID
+	// Set the EventID for the new comment
+	newComment.EventID = event.ID
 
-    // Set created_at to current timestamp
+	// Set created_at to current timestamp
 	newComment.CreatedAt = time.Now().Format("January 2, 2006 3:04 PM") // Custom format
 
-    // Initialize comments slice
-    var comments []data.Comment
-    
-    // If comments exist, unmarshal the existing JSON
-    if event.Comments != "" {
-        if err := json.Unmarshal([]byte(event.Comments), &comments); err != nil {
-            log.Printf("Error unmarshaling comments: %v", err)
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
-            return
-        }
-    }
+	// Initialize comments slice
+	var comments []data.Comment
 
-    // Add the new comment
-    comments = append(comments, newComment)
-    
-    // Marshal the updated comments back to JSON
-    commentsJSON, err := json.Marshal(comments)
-    if err != nil {
-        log.Printf("Error marshaling comments: %v", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
-        return
-    }
-    
-    // Update the event with the new comments JSON
-    event.Comments = string(commentsJSON)
+	// If comments exist, unmarshal the existing JSON
+	if event.Comments != "" {
+		if err := json.Unmarshal([]byte(event.Comments), &comments); err != nil {
+			log.Printf("Error unmarshaling comments: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
+			return
+		}
+	}
 
-    // Save the updated event back to the database
-    if err := database.DB.Save(&event).Error; err != nil {
-        log.Printf("Error saving event: %v", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add comment"})
-        return
-    }
+	// Add the new comment
+	comments = append(comments, newComment)
 
-    c.JSON(http.StatusOK, gin.H{"message": "Comment added successfully"})
+	// Marshal the updated comments back to JSON
+	commentsJSON, err := json.Marshal(comments)
+	if err != nil {
+		log.Printf("Error marshaling comments: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process comments"})
+		return
+	}
+
+	// Update the event with the new comments JSON
+	event.Comments = string(commentsJSON)
+
+	// Save the updated event back to the database
+	if err := database.DB.Save(&event).Error; err != nil {
+		log.Printf("Error saving event: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add comment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Comment added successfully"})
 }
 
 func GetAllComments(c *gin.Context) {
@@ -257,6 +252,28 @@ func GetAllComments(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"comments": comments})
 }
 
+func AddLikeToEvent(c *gin.Context) {
+	// Get event ID from URL parameter
+	id := c.Param("id")
+
+	// Find the event by ID
+	var event data.Event
+	if err := database.DB.Where("id = ?", id).First(&event).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	// Increment the like count
+	event.Likes++
+
+	// Save the updated event back to the database
+	if err := database.DB.Save(&event).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add like"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Like added successfully", "likes": event.Likes})
+}
 
 func MapUserToEvent(c *gin.Context) {
 	var input struct {
@@ -290,7 +307,6 @@ func MapUserToEvent(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to map user to event"})
 		return
 	}
-
 
 	c.JSON(http.StatusOK, gin.H{"message": "User successfully mapped to event"})
 }
@@ -331,7 +347,6 @@ func UnmapUserFromEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User successfully unmapped from event"})
 }
 
-
 // GetRegisteredEvents retrieves all events a user is registered for
 func GetRegisteredEvents(c *gin.Context) {
 	userID := c.Param("id") // Get the user ID from the URL parameters
@@ -354,28 +369,28 @@ func GetRegisteredEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
-//GetUsersByEvent list using Event ID
+// GetUsersByEvent list using Event ID
 func GetUsersByEvent(c *gin.Context) {
-    // Get the event_id from URL parameter
-    eventID := c.Param("event_id")
-    
-    var event data.Event
+	// Get the event_id from URL parameter
+	eventID := c.Param("event_id")
 
-    // Check if the event exists
-    if err := database.DB.First(&event, eventID).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
-        return
-    }
+	var event data.Event
 
-    var users []data.User
-    // Retrieve users associated with the event
-    if err := database.DB.Model(&event).Association("Users").Find(&users); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users for the event"})
-        return
-    }
+	// Check if the event exists
+	if err := database.DB.First(&event, eventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
 
-    // Respond with the list of users
-    c.JSON(http.StatusOK, users)
+	var users []data.User
+	// Retrieve users associated with the event
+	if err := database.DB.Model(&event).Association("Users").Find(&users); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users for the event"})
+		return
+	}
+
+	// Respond with the list of users
+	c.JSON(http.StatusOK, users)
 }
 
 ///////////////////////////////////////////////////////////////
