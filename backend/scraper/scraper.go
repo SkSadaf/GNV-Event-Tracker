@@ -4,23 +4,96 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"backend/data"
 	"backend/database"
 
 	"github.com/gocolly/colly"
 	"github.com/muesli/gominatim"
+	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
 type Event struct {
 	Link string `json:"link"`
 }
 
-func InsertEventIntoDB(name, date, location, googleMapsLink, description string) error {
+func CleanWhiteSpaces(str string) string {
+	// Preserve trailing newline
+	hasTrailingNewline := strings.HasSuffix(str, "\n")
+
+	// Trim leading spaces
+	str = strings.TrimLeft(str, " \t\n") // Remove leading spaces, tabs, and newlines
+
+	// Temporarily remove trailing newlines before processing
+	str = strings.TrimRight(str, "\n")
+
+	// Replace all newlines with spaces (except the trailing one)
+	str = strings.ReplaceAll(str, "\n", " ")
+
+	// Remove all extra spaces and tabs
+	re := regexp.MustCompile(`\s+`)
+	str = re.ReplaceAllString(str, " ")
+
+	// Restore the trailing newline if it was there
+	if hasTrailingNewline {
+		str += "\n"
+	}
+
+	return str
+}
+
+func RemoveWhiteSpaces(str string) string {
+	// This function removes all whitespace characters from the string
+	// including spaces, tabs, and newlines.
+
+	// Use a regular expression to replace all whitespace characters with an empty string
+	re := regexp.MustCompile(`\s+`)
+	str = re.ReplaceAllString(str, "")
+
+	return str
+}
+
+func CheckForDuplicateEvents(eventTitle string, eventDate string, eventLocation string) bool {
+
+	var events []data.Event
+
+	// Pre-filter by event date and city before checking duplicates
+	query := database.DB.Where("name LIKE ?", eventTitle).
+		Where("date LIKE ?", eventDate).
+		Where("location LIKE ?", eventLocation).
+		Limit(10) // Avoid fetching too many events
+
+	if err := query.Find(&events).Error; err != nil {
+		log.Println("Error fetching events from database:", err)
+		return false
+	}
+
+	// Levenshtein distance for similarity check
+	threshold := 3 // Tune this threshold based on real-world testing
+
+	for _, event := range events {
+
+		if event.Name == eventTitle {
+			log.Println("DUPLICATE FOUND: EVENT NOT INSERTED - Title:", eventTitle)
+			return true
+		}
+
+		distance := levenshtein.DistanceForStrings([]rune(strings.ToLower(eventTitle)), []rune(strings.ToLower(eventTitle)), levenshtein.DefaultOptions)
+
+		if distance <= threshold {
+			log.Println("DUPLICATE FOUND: EVENT NOT INSERTED - Title:", eventTitle)
+			return true
+		}
+	}
+
+	return false
+}
+
+func InsertEventIntoDB(name, date, location, googleMapsLink, description string, category string, tags string, imageURL string) error {
 	// Check if the event already exists in the database
 	var existingEvent data.Event
 	if err := database.DB.Where("name = ? AND date = ? AND location = ?", name, date, location).First(&existingEvent).Error; err == nil {
@@ -35,7 +108,11 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string)
 		Location:       location,
 		Description:    description,
 		GoogleMapsLink: googleMapsLink,
+		Category:       category,
+		Tags:           tags,
+		ImageURL:       imageURL,
 	}
+
 	if err := database.DB.Create(&event).Error; err != nil {
 		return err
 	}
@@ -45,23 +122,21 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string)
 		log.Println("Error populating latitude/longitude:", err)
 	}
 
-
 	return nil
 }
 
-
 // removeNameFromLocation removes the name part from the location string and returns the address part
 func removeNameFromLocation(location string) string {
-    // Split the location string by spaces to find where the numeric address starts
-    parts := strings.Fields(location)
-    for i, part := range parts {
-        // Check if the part is numeric
-        if _, err := strconv.Atoi(part); err == nil {
-            // Return the location starting from the numeric address
-            return strings.Join(parts[i:], " ")
-        }
-    }
-    return "" // Return an empty string if no numeric address is found
+	// Split the location string by spaces to find where the numeric address starts
+	parts := strings.Fields(location)
+	for i, part := range parts {
+		// Check if the part is numeric
+		if _, err := strconv.Atoi(part); err == nil {
+			// Return the location starting from the numeric address
+			return strings.Join(parts[i:], " ")
+		}
+	}
+	return "" // Return an empty string if no numeric address is found
 }
 
 // PopulateLatLng updates the latitude and longitude for events in the database
@@ -123,33 +198,6 @@ func PopulateLatLng(event *data.Event) error {
 	return nil
 }
 
-
-
-func CleanWhiteSpaces(str string) string {
-	// Preserve trailing newline
-	hasTrailingNewline := strings.HasSuffix(str, "\n")
-
-	// Trim leading spaces
-	str = strings.TrimLeft(str, " \t\n") // Remove leading spaces, tabs, and newlines
-
-	// Temporarily remove trailing newlines before processing
-	str = strings.TrimRight(str, "\n")
-
-	// Replace all newlines with spaces (except the trailing one)
-	str = strings.ReplaceAll(str, "\n", " ")
-
-	// Remove all extra spaces and tabs
-	re := regexp.MustCompile(`\s+`)
-	str = re.ReplaceAllString(str, " ")
-
-	// Restore the trailing newline if it was there
-	if hasTrailingNewline {
-		str += "\n"
-	}
-
-	return str
-}
-
 func ScrapeVisitGainesville() {
 
 	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
@@ -181,13 +229,16 @@ func ScrapeVisitGainesville() {
 		})
 		cleanedEventDescription := CleanWhiteSpaces(eventDescription)
 
-		err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription)
-		if err != nil {
-			log.Println("Error inserting event into database:", err)
-		}
+		// Check for duplicates before inserting into the database
+		if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
+			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "FIXME", "FIXME", "FIXME")
+			if err != nil {
+				log.Println("Error inserting event into database:", err)
+			}
 
-		fmt.Printf("Event: %s\nDate: %s\nDescription: %s\nLocation: %s\nGoogle Maps Link: %s\n",
-			cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+			fmt.Printf("Event: %s\nDate: %s\nDescription: %s\nLocation: %s\nGoogle Maps Link: %s\n",
+				cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+		}
 	})
 
 	// Main function to scrape the API for event links
@@ -225,7 +276,7 @@ func ScrapeVisitGainesville() {
 				if event.Link != "" {
 					fmt.Println("Visiting event page:", event.Link)
 					eventCollector.Visit(event.Link)
-					time.Sleep(500 * time.Millisecond) // Prevent overloading the server
+					// time.Sleep(500 * time.Millisecond) // Prevent overloading the server
 				}
 			}
 
@@ -239,3 +290,191 @@ func ScrapeVisitGainesville() {
 	// Start scraping from page 1
 	scrapePage(page)
 }
+
+func ScrapeGainesvilleSun() {
+	baseURL := "https://discovery.evvnt.com/api/publisher/458/home_page_events?hitsPerPage=30&multipleEventInstances=true&page=%d&publisher_id=458"
+	page := 0
+	maxPages := 5
+
+	// Create a single collector for API requests
+	collector := colly.NewCollector(
+		colly.AllowedDomains("discovery.evvnt.com"),
+		colly.UserAgent("Mozilla/5.0"),
+	)
+
+	collector.OnResponse(func(r *colly.Response) {
+		var events struct {
+			RawEvents []struct {
+				Title       string `json:"title"`
+				StartDate   string `json:"start_date"`
+				Description string `json:"description"`
+				Keywords    string `json:"keywords"`
+				Category    string `json:"category_name"`
+				Venue       struct {
+					Name      string  `json:"name"`
+					Address1  string  `json:"address_1"`
+					Address2  string  `json:"address_2"`
+					Town      string  `json:"town"`
+					Country   string  `json:"country"`
+					PostCode  string  `json:"post_code"`
+					Latitude  float64 `json:"latitude"`
+					Longitude float64 `json:"longitude"`
+				} `json:"venue"`
+				Images []struct {
+					Original struct {
+						URL string `json:"url"`
+					} `json:"original"`
+				} `json:"images"`
+			} `json:"rawEvents"`
+		}
+
+		if err := json.Unmarshal(r.Body, &events); err != nil {
+			log.Println("JSON parse error:", err)
+			return
+		}
+
+		// Process each event
+		for _, event := range events.RawEvents {
+			cleanedEventName := CleanWhiteSpaces(event.Title)
+			cleanedEventDate := CleanWhiteSpaces(event.StartDate)
+			eventLocation := fmt.Sprintf("%s %s %s %s %s",
+				// event.Venue.Name,
+				event.Venue.Address1,
+				event.Venue.Address2,
+				event.Venue.Town,
+				event.Venue.Country,
+				event.Venue.PostCode,
+			)
+			cleanedEventLocation := CleanWhiteSpaces(eventLocation)
+			cleanedEventDescription := CleanWhiteSpaces(event.Description)
+			cleanedEventTags := RemoveWhiteSpaces(event.Keywords)
+			cleanedImageURL := RemoveWhiteSpaces(event.Images[0].Original.URL)
+			category := event.Category
+
+			escapedAddress := url.QueryEscape(cleanedEventLocation)
+			mapsQuery := fmt.Sprintf("address=%s", escapedAddress)
+			googleMapsLink := "https://www.google.com/maps?q=" + mapsQuery
+
+			// Check for duplicates before inserting into the database
+			if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
+				err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedEventTags, cleanedImageURL)
+				if err != nil {
+					log.Println("Error inserting event into database:", err)
+				}
+
+				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nGoogle Maps Link: %s\n\n",
+					cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+			}
+		}
+
+		// Continue to the next page
+		nextPage := page + 1
+		if nextPage <= maxPages {
+			apiURL := fmt.Sprintf(baseURL, nextPage)
+			fmt.Println("Fetching:", apiURL)
+			collector.Visit(apiURL)
+		} else {
+			fmt.Println("Reached max pages. Stopping.")
+		}
+	})
+
+	// Start scraping from page 0
+	apiURL := fmt.Sprintf(baseURL, page)
+	fmt.Println("Fetching:", apiURL)
+	collector.Visit(apiURL)
+}
+
+// The following code is commented out as the EventBrite API deprecated its search by location functionality.
+
+// const eventBriteToken = ""
+
+// type EventbriteResponse struct {
+// 	Events []struct {
+// 		Name struct {
+// 			Text string `json:"text"`
+// 		} `json:"name"`
+// 		Start struct {
+// 			Local string `json:"local"`
+// 		} `json:"start"`
+// 		Venue struct {
+// 			Address struct {
+// 				Address1   string `json:"address_1"`
+// 				City       string `json:"city"`
+// 				Region     string `json:"region"`
+// 				PostalCode string `json:"postal_code"`
+// 			} `json:"address"`
+// 		} `json:"venue"`
+// 		URL         string `json:"url"`
+// 		Description struct {
+// 			Text string `json:"text"`
+// 		} `json:"description"`
+// 	} `json:"events"`
+// }
+
+// func ScrapeEventBrite() {
+// 	apiURL := "https://www.eventbriteapi.com/v3/events/search/?location.latitude=39.7496&location.longitude=-105.0238&location.within=50mi"
+// 	req, _ := http.NewRequest(http.MethodGet, apiURL, nil)
+// 	req.Header.Set("Authorization", "Bearer "+eventBriteToken)
+
+// 	client := &http.Client{}
+// 	resp, err := client.Do(req)
+// 	if err != nil {
+// 		fmt.Println("Error:", err)
+// 		return
+// 	}
+// 	defer resp.Body.Close()
+
+// 	if resp.StatusCode != 200 {
+// 		errorBody, _ := io.ReadAll(resp.Body)
+// 		fmt.Printf("Error: %s\nResponse Body: %s\n", resp.Status, string(errorBody))
+// 		return
+// 	}
+
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		fmt.Println("Error reading response body:", err)
+// 		return
+// 	}
+// 	fmt.Println("Response Body:", string(body))
+
+// 	var result EventbriteResponse
+// 	if err := json.Unmarshal(body, &result); err != nil {
+// 		fmt.Println("Error decoding JSON response:", err)
+// 		return
+// 	}
+
+// 	for _, event := range result.Events {
+// 		// Clean text and handle missing fields
+// 		cleanedEventName := CleanWhiteSpaces(event.Name.Text)
+// 		cleanedEventDate := CleanWhiteSpaces(event.Start.Local)
+
+// 		// Handle missing location gracefully
+// 		locationParts := []string{}
+// 		if event.Venue.Address.Address1 != "" {
+// 			locationParts = append(locationParts, event.Venue.Address.Address1)
+// 		}
+// 		if event.Venue.Address.City != "" {
+// 			locationParts = append(locationParts, event.Venue.Address.City)
+// 		}
+// 		if event.Venue.Address.Region != "" {
+// 			locationParts = append(locationParts, event.Venue.Address.Region)
+// 		}
+// 		cleanedEventLocation := strings.Join(locationParts, ", ")
+
+// 		// Handle missing description
+// 		cleanedEventDescription := CleanWhiteSpaces(event.Description.Text)
+
+// 		// Generate Google Maps link
+// 		googleMapsLink := "https://www.google.com/maps?q=" + url.QueryEscape(cleanedEventLocation)
+
+// 		// Insert event into database
+// 		err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription)
+// 		if err != nil {
+// 			log.Println("Error inserting event into database:", err)
+// 		}
+
+// 		// Print event details
+// 		fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nGoogle Maps Link: %s\n\n",
+// 			cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+// 	}
+// }
