@@ -29,35 +29,77 @@ func TestCreateEvent(t *testing.T) {
 	db := setupTestDB()
 	database.DB = db
 
-	// Create a test event
-	event := data.Event{Name: "Test Event"}
-	eventJSON, _ := json.Marshal(event)
+	// Ensure test user (organizer) exists
+	user := data.User{ID: 3, Name: "John Doe", Email: "johndoe@example.com", Password: "securepassword"}
+	db.Create(&user)
 
-	// Create a request
-	req, _ := http.NewRequest(http.MethodPost, "/events", bytes.NewBuffer(eventJSON))
+	// Ensure organizer exists
+	organizer := data.Organizer{ID: 3, Name: "John Doe", Email: "johndoe@example.com", ContactDetails: "3534444444"}
+	db.Create(&organizer)
+
+	// Prepare event data
+	eventData := map[string]interface{}{
+		"name":             "Tech Summit 2026",
+		"location":         "New York, NY",
+		"date":             "2025-06-15",
+		"time":             "10:00 AM - 12:00 PM",
+		"organizer_id":     3,
+		"description":      "A major tech conference for developers and enthusiasts.",
+		"category":         "Technology",
+		"tags":             "Tech,Conference,Networking",
+		"cost":             199.99,
+		"google_maps_link": "https://maps.google.com/?q=New+York+NY",
+		"website":          "https://techconference2025.com",
+		"max_participants": 500,
+		"contact_details":  "3534444444",
+	}
+
+	eventJSON, _ := json.Marshal(eventData)
+
+	// Create request
+	req, _ := http.NewRequest(http.MethodPost, "/CreateEvent", bytes.NewBuffer(eventJSON))
 	req.Header.Set("Content-Type", "application/json")
 
-	// Create a response recorder
+	// Create response recorder
 	w := httptest.NewRecorder()
 
-	// Create a Gin context
+	// Create Gin context
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 
-	// Call the function
+	// Call API
 	api.CreateEvent(c)
 
-	// Check the response
+	// Check HTTP response status
 	assert.Equal(t, http.StatusCreated, w.Code)
-	var response map[string]any
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, "Event created successfully", response["message"])
-	assert.NotNil(t, response["event_id"])
 
-	// Check the database
+	// Parse JSON response
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.Nil(t, err)
+
+	// Extract event ID from response
+	eventID, ok := response["id"].(float64) // JSON numbers default to float64
+	assert.True(t, ok, "Event ID should be a valid float64 number")
+	eventIDInt := int(eventID) // Convert float64 to int
+
+	// Fetch the event from DB using the actual event ID
 	var dbEvent data.Event
-	db.First(&dbEvent)
-	assert.Equal(t, event.Name, dbEvent.Name)
+	err = db.First(&dbEvent, eventIDInt).Error
+	assert.Nil(t, err, "Event should exist in the database")
+
+	// Validate event fields
+	assert.Equal(t, "Tech Summit 2026", dbEvent.Name)
+	assert.Equal(t, "New York, NY", dbEvent.Location)
+	assert.Equal(t, "June 15, 10:00 AM - 12:00 PM", dbEvent.Date)
+
+	// Fix float64 type conversion for organizer_id
+	receivedOrganizerID := int(response["organizer_id"].(float64))
+	assert.Equal(t, 3, receivedOrganizerID)
+
+	// Fix float64 type conversion for max_participants
+	maxParticipants := int(response["max_participants"].(float64))
+	assert.Equal(t, 500, maxParticipants)
 }
 
 func TestGetAllEvents(t *testing.T) {
@@ -302,3 +344,139 @@ func TestGetRegisteredEvents_Success(t *testing.T) {
 	assert.Len(t, events, 1)
 	assert.Equal(t, event.Name, events[0].Name)
 }
+//////////////////////////////////////////////////////////////////
+
+func TestUnmapUserFromEvent(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	// Setup test database
+	testDB := setupTestDB()
+	database.DB = testDB
+
+	// Create a test user and event
+	user := data.User{ID: 2}
+	event := data.Event{ID: 3}
+
+	testDB.Create(&user)
+	testDB.Create(&event)
+
+	// Associate user with event
+	testDB.Model(&event).Association("Users").Append(&user)
+
+	// Create a test router
+	router := gin.Default()
+	router.POST("/unmapUserFromEvent", api.UnmapUserFromEvent)
+
+	// Prepare the JSON payload
+	requestBody, _ := json.Marshal(map[string]interface{}{
+		"user_id":  2,
+		"event_id": 3,
+	})
+
+	// Create the request
+	req, _ := http.NewRequest(http.MethodPost, "/unmapUserFromEvent", bytes.NewBuffer(requestBody))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Record the response
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert response
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// Check response body
+	var response map[string]string
+	json.Unmarshal(w.Body.Bytes(), &response)
+	assert.Equal(t, "User successfully unmapped from event", response["message"])
+
+	// Verify the user is no longer associated with the event
+	count := testDB.Model(&event).Association("Users").Count()
+	assert.Equal(t, int64(0), count, "User should no longer be mapped to the event")
+}
+
+
+func TestGetAllComments(t *testing.T) {
+	db := setupTestDB()
+	database.DB = db
+
+	router := gin.Default()
+	router.GET("/events/:event_id/GetAllComments", api.GetAllComments)
+
+	// Create a test event with comments
+	event := data.Event{
+		ID:       11,
+		Comments: `[{"user":"Alice","message":"Great event!"}, {"user":"Bob","message":"Had a fantastic time!"}]`,
+	}
+	db.Create(&event)
+
+	// Create request
+	req, _ := http.NewRequest("GET", "/events/11/GetAllComments", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Check response
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response map[string][]map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Len(t, response["comments"], 2)
+	assert.Equal(t, "Alice", response["comments"][0]["user"])
+	assert.Equal(t, "Great event!", response["comments"][0]["message"])
+	assert.Equal(t, "Bob", response["comments"][1]["user"])
+	assert.Equal(t, "Had a fantastic time!", response["comments"][1]["message"])
+}
+
+func TestGetUsersByEvent_Success(t *testing.T) {
+	// Setup
+	gin.SetMode(gin.TestMode)
+	db := setupTestDB()
+	database.DB = db
+
+	// Create a test event
+	event := data.Event{ID: 5, Name: "Test Event"}
+	db.Create(&event)
+
+	// Create test users with unique emails
+	user1 := data.User{Name: "John Doe", Email: "john.doe@example.com"}
+	user2 := data.User{Name: "Jane Doe", Email: "jane.doe@example.com"}
+
+	// Create users in the database
+	if err := db.Create(&user1).Error; err != nil {
+		t.Fatalf("Failed to create user1: %v", err)
+	}
+	if err := db.Create(&user2).Error; err != nil {
+		t.Fatalf("Failed to create user2: %v", err)
+	}
+
+	// Map users to the event
+	if err := db.Model(&event).Association("Users").Append(&user1, &user2); err != nil {
+		t.Fatalf("Failed to associate users with event: %v", err)
+	}
+
+	// Create a request
+	req, _ := http.NewRequest(http.MethodGet, "/event/5/users", nil)
+
+	// Create a response recorder
+	w := httptest.NewRecorder()
+
+	// Create a Gin context
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Call the function
+	api.GetUsersByEvent(c)
+
+	// Check the response
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var users []data.User
+	err := json.Unmarshal(w.Body.Bytes(), &users)
+	assert.NoError(t, err)
+	assert.Len(t, users, 2) // Ensure two users are returned
+	assert.Equal(t, user1.Name, users[0].Name)
+	assert.Equal(t, user2.Name, users[1].Name)
+}
+
+
+
