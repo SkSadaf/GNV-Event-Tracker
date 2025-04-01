@@ -8,17 +8,89 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"backend/data"
 	"backend/database"
 
 	"github.com/gocolly/colly"
 	"github.com/muesli/gominatim"
+	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
 type Event struct {
 	Link string `json:"link"`
+}
+
+func CleanWhiteSpaces(str string) string {
+	// Preserve trailing newline
+	hasTrailingNewline := strings.HasSuffix(str, "\n")
+
+	// Trim leading spaces
+	str = strings.TrimLeft(str, " \t\n") // Remove leading spaces, tabs, and newlines
+
+	// Temporarily remove trailing newlines before processing
+	str = strings.TrimRight(str, "\n")
+
+	// Replace all newlines with spaces (except the trailing one)
+	str = strings.ReplaceAll(str, "\n", " ")
+
+	// Remove all extra spaces and tabs
+	re := regexp.MustCompile(`\s+`)
+	str = re.ReplaceAllString(str, " ")
+
+	// Restore the trailing newline if it was there
+	if hasTrailingNewline {
+		str += "\n"
+	}
+
+	return str
+}
+
+func RemoveWhiteSpaces(str string) string {
+	// This function removes all whitespace characters from the string
+	// including spaces, tabs, and newlines.
+
+	// Use a regular expression to replace all whitespace characters with an empty string
+	re := regexp.MustCompile(`\s+`)
+	str = re.ReplaceAllString(str, "")
+
+	return str
+}
+
+func CheckForDuplicateEvents(eventTitle string, eventDate string, eventLocation string) bool {
+
+	var events []data.Event
+
+	// Pre-filter by event date and city before checking duplicates
+	query := database.DB.Where("name LIKE ?", eventTitle).
+		Where("date LIKE ?", eventDate).
+		Where("location LIKE ?", eventLocation).
+		Limit(10) // Avoid fetching too many events
+
+	if err := query.Find(&events).Error; err != nil {
+		log.Println("Error fetching events from database:", err)
+		return false
+	}
+
+	// Levenshtein distance for similarity check
+	threshold := 3 // Tune this threshold based on real-world testing
+
+	for _, event := range events {
+
+		if event.Name == eventTitle {
+			log.Println("DUPLICATE FOUND: EVENT NOT INSERTED - Title:", eventTitle)
+			return true
+		}
+
+		distance := levenshtein.DistanceForStrings([]rune(strings.ToLower(eventTitle)), []rune(strings.ToLower(eventTitle)), levenshtein.DefaultOptions)
+
+		if distance <= threshold {
+			log.Println("DUPLICATE FOUND: EVENT NOT INSERTED - Title:", eventTitle)
+			return true
+		}
+	}
+
+	return false
 }
 
 func InsertEventIntoDB(name, date, location, googleMapsLink, description string, category string, tags string, imageURL string) error {
@@ -126,42 +198,6 @@ func PopulateLatLng(event *data.Event) error {
 	return nil
 }
 
-func CleanWhiteSpaces(str string) string {
-	// Preserve trailing newline
-	hasTrailingNewline := strings.HasSuffix(str, "\n")
-
-	// Trim leading spaces
-	str = strings.TrimLeft(str, " \t\n") // Remove leading spaces, tabs, and newlines
-
-	// Temporarily remove trailing newlines before processing
-	str = strings.TrimRight(str, "\n")
-
-	// Replace all newlines with spaces (except the trailing one)
-	str = strings.ReplaceAll(str, "\n", " ")
-
-	// Remove all extra spaces and tabs
-	re := regexp.MustCompile(`\s+`)
-	str = re.ReplaceAllString(str, " ")
-
-	// Restore the trailing newline if it was there
-	if hasTrailingNewline {
-		str += "\n"
-	}
-
-	return str
-}
-
-func RemoveWhiteSpaces(str string) string {
-	// This function removes all whitespace characters from the string
-	// including spaces, tabs, and newlines.
-
-	// Use a regular expression to replace all whitespace characters with an empty string
-	re := regexp.MustCompile(`\s+`)
-	str = re.ReplaceAllString(str, "")
-
-	return str
-}
-
 func ScrapeVisitGainesville() {
 
 	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
@@ -193,13 +229,16 @@ func ScrapeVisitGainesville() {
 		})
 		cleanedEventDescription := CleanWhiteSpaces(eventDescription)
 
-		err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "twin", "bruh", "brah")
-		if err != nil {
-			log.Println("Error inserting event into database:", err)
-		}
+		// Check for duplicates before inserting into the database
+		if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
+			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "FIXME", "FIXME", "FIXME")
+			if err != nil {
+				log.Println("Error inserting event into database:", err)
+			}
 
-		fmt.Printf("Event: %s\nDate: %s\nDescription: %s\nLocation: %s\nGoogle Maps Link: %s\n",
-			cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+			fmt.Printf("Event: %s\nDate: %s\nDescription: %s\nLocation: %s\nGoogle Maps Link: %s\n",
+				cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+		}
 	})
 
 	// Main function to scrape the API for event links
@@ -237,7 +276,7 @@ func ScrapeVisitGainesville() {
 				if event.Link != "" {
 					fmt.Println("Visiting event page:", event.Link)
 					eventCollector.Visit(event.Link)
-					time.Sleep(500 * time.Millisecond) // Prevent overloading the server
+					// time.Sleep(500 * time.Millisecond) // Prevent overloading the server
 				}
 			}
 
@@ -316,13 +355,16 @@ func ScrapeGainesvilleSun() {
 			mapsQuery := fmt.Sprintf("address=%s", escapedAddress)
 			googleMapsLink := "https://www.google.com/maps?q=" + mapsQuery
 
-			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedEventTags, cleanedImageURL)
-			if err != nil {
-				log.Println("Error inserting event into database:", err)
-			}
+			// Check for duplicates before inserting into the database
+			if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
+				err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedEventTags, cleanedImageURL)
+				if err != nil {
+					log.Println("Error inserting event into database:", err)
+				}
 
-			fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nGoogle Maps Link: %s\n\n",
-				cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nGoogle Maps Link: %s\n\n",
+					cleanedEventName, cleanedEventDate, cleanedEventLocation, cleanedEventDescription, googleMapsLink)
+			}
 		}
 
 		// Continue to the next page

@@ -105,7 +105,7 @@ func main() {
 	// Start scraper after the server begins running
 	go func() {
 		log.Println("Starting scraper...")
-		// scraper.ScrapeVisitGainesville()
+		scraper.ScrapeVisitGainesville()
 		scraper.ScrapeGainesvilleSun()
 		log.Println("Scraping completed")
 	}()
