@@ -92,3 +92,23 @@ func LoginOrganizer(c *gin.Context) {
 		"logged_in":    true,
 	})
 }
+
+func GetOrganizerByID(c *gin.Context) {
+	id := c.Param("id")
+
+	var organizer data.Organizer
+	// Find the organizer by ID
+	if err := database.DB.Preload("Events").First(&organizer, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Organizer not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve organizer"})
+		return
+	}
+
+	// Return the organizer details
+	c.JSON(http.StatusOK, gin.H{
+		"organizer": organizer,
+	})
+}
