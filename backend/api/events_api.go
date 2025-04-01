@@ -393,4 +393,24 @@ func GetUsersByEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+func SearchForEventById(c *gin.Context) {
+	// Get the event ID from URL parameter
+	eventID := c.Param("event_id")
+
+	var event data.Event
+
+	// Find the event by ID
+	if err := database.DB.Preload("Organizer").First(&event, eventID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
+		return
+	}
+
+	// Return the found event
+	c.JSON(http.StatusOK, event)
+}
+
 ///////////////////////////////////////////////////////////////
