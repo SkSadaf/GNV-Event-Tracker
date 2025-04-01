@@ -24,4 +24,5 @@ type Event struct {
 	ImageURL        string    `json:"image_url"`                 // URL for the event image
 	MaxParticipants uint      `json:"max_participants"`          // Add max_participants field (type: int)
 	ContactDetails  string    `json:"contact_details"`           // Contact details for event
+	Likes           uint      `json:"likes"`                     // Number of likes for the event
 }
