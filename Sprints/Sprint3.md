@@ -87,6 +87,8 @@ npx cypress open
   <li>Modified scraper to run after server start</li>
   <li>Added additional required columns Events and Comment DB</li>
   <li>Modified tags datatype and date time formatting in DB while creating event</li>
+  <li>Added image data to events</li>
+  <li>Scraper now collects event tags and categories</li>
   
 </ul>
 
