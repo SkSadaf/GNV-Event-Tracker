@@ -486,4 +486,30 @@ func SearchForEventsByName(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
+func SearchForEventsByCategory(c *gin.Context) {
+	// Get the category from URL parameter
+	category := c.Query("category")
+
+	if category == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Category query parameter is required"})
+		return
+	}
+
+	var events []data.Event
+
+	// Find events by category (case insensitive)
+	if err := database.DB.Where("LOWER(category) = ?", category).Find(&events).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve events"})
+		return
+	}
+
+	if len(events) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No events found for the given category"})
+		return
+	}
+
+	// Return the found events
+	c.JSON(http.StatusOK, events)
+}
+
 ///////////////////////////////////////////////////////////////
