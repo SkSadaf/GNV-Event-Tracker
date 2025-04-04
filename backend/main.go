@@ -6,10 +6,9 @@ import (
 	"backend/database"
 	"backend/scraper"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"sync"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -21,19 +20,12 @@ func main() {
 		panic("Failed to connect to database")
 	}
 
-	// Create a wait group to synchronize server start
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	// Create a channel to signal server start
-	serverStarted := make(chan bool)
-
 	// Prepare the router
 	r := gin.Default()
 
 	// CORS configuration
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Replace with your frontend origin
+		AllowOrigins:     []string{"*"}, // Consider making this more specific in production
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -78,40 +70,20 @@ func main() {
 	}
 	log.Println("Server running on port:", port)
 
-	// Start the server in a goroutine
+	// Start scraper in a goroutine
 	go func() {
-		defer wg.Done()
-		log.Println("Starting server on port:", port)
-
-		// Create a listener
-		listener, err := net.Listen("tcp", ":"+port)
-		if err != nil {
-			log.Fatalf("Failed to create listener: %v", err)
-		}
-
-		// Signal that server is ready
-		close(serverStarted)
-
-		// Serve using the listener
-		if err := r.RunListener(listener); err != nil {
-			log.Fatalf("Server failed to start: %v", err)
-		}
-	}()
-
-	// Wait for server to start
-	<-serverStarted
-	log.Println("Server is now running")
-
-	// Start scraper after the server begins running
-	go func() {
+		// Wait a short time to ensure server is starting
+		time.Sleep(2 * time.Second)
 		log.Println("Starting scraper...")
 		scraper.ScrapeVisitGainesville()
-		scraper.ScrapeGainesvilleSun()
 		log.Println("Scraping completed")
 	}()
 
-	// Wait for server to completely finish
-	wg.Wait()
+	// Start the server (this is a blocking call)
+	log.Printf("Starting server on :%s", port)
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
 
 func getSQLiteVersion(c *gin.Context) {
