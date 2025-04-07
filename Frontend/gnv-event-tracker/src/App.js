@@ -12,7 +12,7 @@ import AllEvents from './AllEvents';
 import EventDetails from './EventDetails';
 import { UserProvider } from './UserContext';
 import { AuthProvider } from './AuthContext';
-import { NotificationProvider } from './NotificationService';
+// import { NotificationProvider } from './NotificationService';
 import CreateEvent from './CreateEvent';
 import UserProfile from './UserProfile';
 
