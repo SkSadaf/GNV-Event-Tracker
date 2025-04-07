@@ -82,6 +82,8 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
+	BroadcastEventNotification(createdEvent.Name, createdEvent.ID)
+
 	// Return event with organizer details
 	c.JSON(http.StatusCreated, createdEvent)
 }
