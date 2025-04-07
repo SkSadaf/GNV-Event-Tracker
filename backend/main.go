@@ -81,7 +81,7 @@ func main() {
 
 	// Start the server (this is a blocking call)
 	log.Printf("Starting server on 0.0.0.0:%s", port)
-	if err := r.Run("0.0.0.0:" + port); err != nil {
+	if err := r.Run("0.0.0.0:8080" + port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}	
 }
