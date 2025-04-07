@@ -80,10 +80,10 @@ func main() {
 	}()
 
 	// Start the server (this is a blocking call)
-	log.Printf("Starting server on :%s", port)
-	if err := r.Run(":" + port); err != nil {
+	log.Printf("Starting server on 0.0.0.0:%s", port)
+	if err := r.Run("0.0.0.0:" + port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
-	}
+	}	
 }
 
 func getSQLiteVersion(c *gin.Context) {
