@@ -368,7 +368,6 @@ func ScrapeGainesvilleSun() {
 			cleanedEventName := CleanWhiteSpaces(event.Title)
 			cleanedEventDate := CleanWhiteSpaces(event.StartDate)
 			eventLocation := fmt.Sprintf("%s %s %s %s %s",
-				// event.Venue.Name,
 				event.Venue.Address1,
 				event.Venue.Address2,
 				event.Venue.Town,
@@ -414,7 +413,7 @@ func ScrapeGainesvilleSun() {
 			if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
 				err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedOrganizerName, cleanedEventTags, cleanedImageURL)
 				if err != nil {
-					log.Println("Error inserting event into database:", err)
+					log.Println("Error inserting event into database:", err, "Event:", cleanedEventName)
 				}
 
 				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nGoogle Maps Link: %s\n\n",
@@ -423,13 +422,13 @@ func ScrapeGainesvilleSun() {
 		}
 
 		// Continue to the next page
-		page++
-		if page <= maxPages {
+		if len(events.RawEvents) > 0 && page < maxPages {
+			page++
 			apiURL := fmt.Sprintf(baseURL, page)
-			fmt.Println("Fetching:", apiURL)
+			fmt.Println("Fetching next page:", apiURL)
 			collector.Visit(apiURL)
 		} else {
-			fmt.Println("Reached max pages. Stopping.")
+			fmt.Println("No more events or reached max pages. Stopping.")
 		}
 	})
 
