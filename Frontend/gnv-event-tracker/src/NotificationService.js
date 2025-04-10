@@ -1,76 +1,94 @@
-// import React, { createContext, useState, useEffect, useContext } from 'react';
-// import { AuthContext } from './AuthContext';
-// import { toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
-// import { useNavigate } from 'react-router-dom';
+// NotificationService.js
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// // Configure toast
-// toast.configure({
-//   autoClose: 5000,
-//   hideProgressBar: false,
-//   closeOnClick: true,
-//   pauseOnHover: true,
-//   draggable: true
-// });
+const NotificationContext = createContext();
 
-// export const NotificationContext = createContext();
+export function useNotifications() {
+  return useContext(NotificationContext);
+}
 
-// export const NotificationProvider = ({ children }) => {
-//   const { isAuthenticated } = useContext(AuthContext);
-//   const navigate = useNavigate();
+export function NotificationProvider({ children }) {
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [socket, setSocket] = useState(null);
 
-//   useEffect(() => {
-//     let socket = null;
-    
-//     if (isAuthenticated) {
-//       // Connect to WebSocket
-//       socket = new WebSocket('ws://localhost:8080/ws');
+  useEffect(() => {
+    // Create WebSocket connection
+    const newSocket = new WebSocket('ws://localhost:8080/ws');
+
+    newSocket.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    newSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
       
-//       socket.onopen = () => {
-//         console.log('WebSocket connection established');
-//       };
-      
-//       socket.onmessage = (event) => {
-//         const data = JSON.parse(event.data);
+      // Check if this is a new event notification
+      if (data.type === 'new_event' && data.action === 'created') {
+        const newNotification = {
+          id: Date.now(), // Simple unique ID
+          message: data.message,
+          eventId: data.event.id,
+          eventName: data.event.name,
+          eventLocation: data.event.location,
+          eventDate: data.event.date,
+          eventImage: data.event.imageUrl,
+          organizerName: data.event.organizer.name,
+          timestamp: new Date(),
+          read: false
+        };
         
-//         if (data.type === 'new_event') {
-//           toast.info(
-//             <div>
-//               {data.message}
-//               <button 
-//                 onClick={() => navigate(`/events/${data.eventId}`)}
-//                 style={{
-//                   marginLeft: '10px',
-//                   background: '#4a90e2',
-//                   color: 'white',
-//                   border: 'none',
-//                   padding: '4px 8px',
-//                   borderRadius: '4px',
-//                   cursor: 'pointer'
-//                 }}
-//               >
-//                 View
-//               </button>
-//             </div>
-//           );
-//         }
-//       };
-      
-//       socket.onerror = (error) => {
-//         console.error('WebSocket error:', error);
-//       };
-//     }
-    
-//     return () => {
-//       if (socket) {
-//         socket.close();
-//       }
-//     };
-//   }, [isAuthenticated, navigate]);
+        setNotifications(prev => [newNotification, ...prev]);
+        setUnreadCount(prev => prev + 1);
+      }
+    };
 
-//   return (
-//     <NotificationContext.Provider value={{}}>
-//       {children}
-//     </NotificationContext.Provider>
-//   );
-// };
+    newSocket.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    newSocket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    setSocket(newSocket);
+
+    // Clean up the WebSocket connection on unmount
+    return () => {
+      if (newSocket) {
+        newSocket.close();
+      }
+    };
+  }, []);
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    );
+    setUnreadCount(0);
+  };
+
+  const markAsRead = (notificationId) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === notificationId 
+          ? { ...notification, read: true } 
+          : notification
+      )
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  const value = {
+    notifications,
+    unreadCount,
+    markAllAsRead,
+    markAsRead
+  };
+
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+    </NotificationContext.Provider>
+  );
+}
