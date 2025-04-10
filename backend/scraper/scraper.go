@@ -93,7 +93,7 @@ func CheckForDuplicateEvents(eventTitle string, eventDate string, eventLocation 
 	return false
 }
 
-func InsertEventIntoDB(name, date, location, googleMapsLink, description string, category string, organizerName string, tags string, imageURL string) error {
+func InsertEventIntoDB(name, date, location, googleMapsLink, description string, category string, organizerName string, tags string, imageURL string, websiteURL string, ticketsURL string) error {
 	// Check if the event already exists in the database
 	var existingEvent data.Event
 	if err := database.DB.Where("name = ? AND date = ? AND location = ?", name, date, location).First(&existingEvent).Error; err == nil {
@@ -132,6 +132,8 @@ func InsertEventIntoDB(name, date, location, googleMapsLink, description string,
 		Category:       category,
 		Tags:           tags,
 		ImageURL:       imageURL,
+		Website:        websiteURL,
+		TicketsURL:     ticketsURL,
 	}
 
 	if organizerID != 0 {
@@ -264,7 +266,7 @@ func ScrapeVisitGainesville() {
 
 		// Check for duplicates before inserting into the database
 		if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
-			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "FIXME", "FIXME", "FIXME", "FIXME")
+			err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, "FIXME", "FIXME", "FIXME", "FIXME", "FIXME", "FIXME")
 			if err != nil {
 				log.Println("Error inserting event into database:", err)
 			}
@@ -354,6 +356,10 @@ func ScrapeGainesvilleSun() {
 					Latitude  float64 `json:"latitude"`
 					Longitude float64 `json:"longitude"`
 				} `json:"venue"`
+				Links struct {
+					Tickets string `json:"Tickets,omitempty"`
+					Website string `json:"Website,omitempty"`
+				} `json:"links"`
 				Images json.RawMessage `json:"images"`
 			} `json:"rawEvents"`
 		}
@@ -383,6 +389,8 @@ func ScrapeGainesvilleSun() {
 			escapedAddress := url.QueryEscape(cleanedEventLocation)
 			mapsQuery := fmt.Sprintf("address=%s", escapedAddress)
 			googleMapsLink := "https://www.google.com/maps?q=" + mapsQuery
+			websiteURL := event.Links.Website
+			ticketsURL := event.Links.Tickets
 
 			// Handle the `images` field dynamically
 			var cleanedImageURL string
@@ -411,7 +419,7 @@ func ScrapeGainesvilleSun() {
 			}
 			// Check for duplicates before inserting into the database
 			if !CheckForDuplicateEvents(cleanedEventName, cleanedEventDate, cleanedEventLocation) {
-				err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedOrganizerName, cleanedEventTags, cleanedImageURL)
+				err := InsertEventIntoDB(cleanedEventName, cleanedEventDate, cleanedEventLocation, googleMapsLink, cleanedEventDescription, category, cleanedOrganizerName, cleanedEventTags, cleanedImageURL, websiteURL, ticketsURL)
 				if err != nil {
 					log.Println("Error inserting event into database:", err, "Event:", cleanedEventName)
 				}
