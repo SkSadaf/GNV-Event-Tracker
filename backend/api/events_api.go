@@ -234,24 +234,42 @@ func AddCommentToEvent(c *gin.Context) {
 }
 
 func GetAllComments(c *gin.Context) {
-	// Get event ID from URL parameter
 	eventID := c.Param("event_id")
 
-	// Fetch event from the database
+	// Fetch event from DB
 	var event data.Event
 	if err := database.DB.First(&event, eventID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
 		return
 	}
 
-	// Parse the JSON comments field
+	// Parse comments JSON string into slice of maps
 	var comments []map[string]interface{}
 	if err := json.Unmarshal([]byte(event.Comments), &comments); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse comments"})
 		return
 	}
 
-	// Return the formatted list of comments
+	// Loop through comments and check if user exists
+	for _, comment := range comments {
+		userIDFloat, ok := comment["user_id"].(float64) // JSON numbers are float64
+		if !ok {
+			// Invalid user_id format, treat as deleted
+			comment["user_id"] = 0
+			comment["user_name"] = "Deleted User"
+			continue
+		}
+
+		userID := uint(userIDFloat)
+		var user data.User
+		if err := database.DB.First(&user, userID).Error; err != nil {
+			// User not found, update response
+			comment["user_id"] = 0
+			comment["user_name"] = "Deleted User"
+		}
+	}
+
+	// Return updated comments
 	c.JSON(http.StatusOK, gin.H{"comments": comments})
 }
 

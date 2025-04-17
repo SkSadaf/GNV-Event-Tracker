@@ -102,7 +102,29 @@ func RemoveUser(c *gin.Context) {
 		return
 	}
 
-	// Delete the user
+	// Remove the user from all event associations (event_users)
+	if err := database.DB.Model(&user).Association("Events").Clear(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove user-event associations"})
+		return
+	}
+	
+
+	// Check if the user is an organizer
+	var organizer data.Organizer
+	if err := database.DB.Where("id = ?", userID).First(&organizer).Error; err == nil {
+		// User is an organizer; delete their events
+		if err := database.DB.Where("organizer_id = ?", organizer.ID).Delete(&data.Event{}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user's events"})
+			return
+		}
+		// Delete the organizer record
+		if err := database.DB.Delete(&organizer).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete organizer"})
+			return
+		}
+	}
+
+	// Finally, delete the user
 	if err := database.DB.Delete(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
 		return
