@@ -2,10 +2,12 @@
 
 <h2>Tasks Completed During Sprint 4</h2>
 <ul>
-  <li></li>
-  <li></li>
-  <li></li>
-  <li></li>
+  <li>Added search bar in the All Events page</li>
+  <li>Added images in each individual events page</li>
+  <li>Added notification feature</li>
+  <li>Jest Unit test for login page, SignUp page, all events page, create event page</li>
+  <li>Enhanced CSS</li>
+  <li>Added more information on the individual event details page</li>
 </ul>
 
 <h2>Frontend</h2>
