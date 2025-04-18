@@ -1,0 +1,227 @@
+/* Main.css */
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
+  
+  /* Hero Section */
+  /* Hero Section */
+.hero {
+    padding: 60px 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    margin-top: 40px; /* Added margin-top to create space between header and hero section */
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .main-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1a365d;
+  }
+  
+  .hero-tagline {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 25px;
+    color: #2a4365;
+  }
+  
+  .hero-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+  
+  /* Features Section */
+  .features-section {
+    padding: 50px 0;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #2a4365;
+    position: relative;
+  }
+  
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background-color: #4299e1;
+    margin: 15px auto 0;
+    border-radius: 2px;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+  
+  .feature-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #2c5282;
+  }
+  
+  .feature-card p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #4a5568;
+  }
+  
+  /* Benefits Section */
+  .benefits-section {
+    padding: 50px 0;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    margin: 40px 0;
+  }
+  
+  .benefits-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+  }
+  
+  .benefit-item:hover {
+    transform: translateX(5px);
+  }
+  
+  .benefit-icon {
+    font-size: 2rem;
+    margin-right: 20px;
+    color: #4299e1;
+  }
+  
+  .benefit-text h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #2c5282;
+  }
+  
+  .benefit-text p {
+    font-size: 1rem;
+    color: #4a5568;
+    line-height: 1.4;
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    text-align: center;
+    padding: 60px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: white;
+    margin: 40px 0;
+  }
+  
+  .cta-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .cta-content h2 {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+  }
+  
+  .cta-content p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+  }
+  
+  .cta-button {
+    background-color: white;
+    color: #5a67d8;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background-color: #f7fafc;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .main-title {
+      font-size: 2.2rem;
+    }
+    
+    .hero-tagline {
+      font-size: 1.2rem;
+    }
+    
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .benefit-item {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .benefit-icon {
+      margin: 0 0 15px 0;
+    }
+    
+    .cta-content h2 {
+      font-size: 1.8rem;
+    }
+  }
