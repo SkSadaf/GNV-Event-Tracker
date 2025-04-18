@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles/HeaderLanding.css';
 import LogoutButton from './LogoutButton';
-
+import logoImage from './GNV Event Tracker.png';
 const HeaderLanding = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -33,6 +33,16 @@ const HeaderLanding = () => {
   return (
     <header>
       <div className="logo">
+        <img 
+                  src={logoImage} 
+                  alt="Gainesville Events Logo" 
+                  style={{ 
+                    height: '90px', 
+                    width: 'auto', 
+                    marginRight: '10px',
+                    verticalAlign: 'middle'
+                  }} 
+                />
         <h1>Gainesville Events</h1>
       </div>
       <nav>
