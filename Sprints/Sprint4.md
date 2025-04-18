@@ -5,7 +5,8 @@
   <li>Added search bar in the All Events page</li>
   <li>Added images in each individual events page</li>
   <li>Added notification feature and tested it </li>
-  <li>Jest Unit test for login page, SignUp page, all events page, create event page</li>
+  <li>Cypress test for Search functionality in all events page</li>
+  <li>Jest Unit test for login page, SignUp page, all events page, create event page, user profile</li>
   <li>Enhanced CSS</li>
   <li>Added more information on the individual event details page</li>
 </ul>
