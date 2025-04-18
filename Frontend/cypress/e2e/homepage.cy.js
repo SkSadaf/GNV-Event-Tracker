@@ -5,7 +5,7 @@ describe('The Home Page', () => {
 
   it('displays the header correctly', () => {
     cy.get('header').should('be.visible')
-    cy.get('header').contains('Gainesville Events')
+    cy.get('header').contains('GNV Events')
     cy.get('header nav').should('exist')
     cy.get('header nav').contains('Log In')
     cy.get('header nav').contains('Sign Up')

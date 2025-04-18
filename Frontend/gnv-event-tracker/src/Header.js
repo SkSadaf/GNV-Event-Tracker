@@ -17,7 +17,7 @@ const Header = () => {
             verticalAlign: 'middle'
           }} 
         />
-        <h1 style={{ display: 'inline', margin: 0 }}>Gainesville Event Tracker</h1>
+        <h1 style={{ display: 'inline', margin: 0 }}>GNV Events</h1>
       </div>
       <nav>
         <ul>
