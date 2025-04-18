@@ -1,6 +1,6 @@
 
 import React from 'react';
-import './styles/Main.css'; // You'll need to create this CSS file
+import './styles/Main.css';
 
 const Main = () => {
   return (
