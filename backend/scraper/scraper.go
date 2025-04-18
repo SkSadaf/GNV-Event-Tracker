@@ -238,151 +238,151 @@ func PopulateLatLng(event *data.Event) error {
 	return nil
 }
 
-func ScrapeVisitGainesville() {
-	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
-	page := 1
-	const maxPages = 5
+// func ScrapeVisitGainesville() {
+// 	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
+// 	page := 1
+// 	const maxPages = 5
 
-	// Create a collector for the main API requests
-	apiCollector := colly.NewCollector(
-		colly.AllowedDomains("www.visitgainesville.com", "visitgainesville.com"),
-		colly.UserAgent("Mozilla/5.0"),
-	)
+// 	// Create a collector for the main API requests
+// 	apiCollector := colly.NewCollector(
+// 		colly.AllowedDomains("www.visitgainesville.com", "visitgainesville.com"),
+// 		colly.UserAgent("Mozilla/5.0"),
+// 	)
 
-	// Create a separate collector for visiting individual event pages
-	eventPageCollector := colly.NewCollector(
-		colly.AllowedDomains("www.visitgainesville.com", "visitgainesville.com"),
-		colly.UserAgent("Mozilla/5.0"),
-	)
+// 	// Create a separate collector for visiting individual event pages
+// 	eventPageCollector := colly.NewCollector(
+// 		colly.AllowedDomains("www.visitgainesville.com", "visitgainesville.com"),
+// 		colly.UserAgent("Mozilla/5.0"),
+// 	)
 
-	// Map to store event details while waiting for address scraping
-	eventDetails := make(map[string]struct {
-		Name        string
-		Description string
-		StartDate   string
-		EndDate     string
-		Cost        string
-		ImageURL    string
-		URL         string
-	})
+// 	// Map to store event details while waiting for address scraping
+// 	eventDetails := make(map[string]struct {
+// 		Name        string
+// 		Description string
+// 		StartDate   string
+// 		EndDate     string
+// 		Cost        string
+// 		ImageURL    string
+// 		URL         string
+// 	})
 
-	// Handle individual event pages to scrape address and Google Maps link
-	eventPageCollector.OnHTML("body", func(e *colly.HTMLElement) {
-		eventURL := e.Request.URL.String()
-		address := e.DOM.Find(".tribe-events-venue-details .tribe-venue").Text()
-		cleanedAddress := CleanWhiteSpaces(address)
+// 	// Handle individual event pages to scrape address and Google Maps link
+// 	eventPageCollector.OnHTML("body", func(e *colly.HTMLElement) {
+// 		eventURL := e.Request.URL.String()
+// 		address := e.DOM.Find(".tribe-events-venue-details .tribe-venue").Text()
+// 		cleanedAddress := CleanWhiteSpaces(address)
 
-		escapedAddress := url.QueryEscape(cleanedAddress)
-		googleMapsLink := "https://www.google.com/maps?q=" + escapedAddress
+// 		escapedAddress := url.QueryEscape(cleanedAddress)
+// 		googleMapsLink := "https://www.google.com/maps?q=" + escapedAddress
 
-		// Retrieve the event details from the map
-		if details, found := eventDetails[eventURL]; found {
-			eventDate := fmt.Sprintf("%s - %s", details.StartDate, details.EndDate)
+// 		// Retrieve the event details from the map
+// 		if details, found := eventDetails[eventURL]; found {
+// 			eventDate := fmt.Sprintf("%s - %s", details.StartDate, details.EndDate)
 
-			// Check for duplicates before inserting into the database
-			if !CheckForDuplicateEvents(details.Name, eventDate, cleanedAddress) {
-				err := InsertEventIntoDB(details.Name, eventDate, cleanedAddress, googleMapsLink, details.Description, "General", "Visit Gainesville", "example@ex.com", "0000000000", details.Cost, details.ImageURL, details.URL, "")
-				if err != nil {
-					log.Println("Error inserting event into database:", err, "Event:", details.Name)
-				}
+// 			// Check for duplicates before inserting into the database
+// 			if !CheckForDuplicateEvents(details.Name, eventDate, cleanedAddress) {
+// 				err := InsertEventIntoDB(details.Name, eventDate, cleanedAddress, googleMapsLink, details.Description, "General", "Visit Gainesville", "example@ex.com", "0000000000", details.Cost, details.ImageURL, details.URL, "")
+// 				if err != nil {
+// 					log.Println("Error inserting event into database:", err, "Event:", details.Name)
+// 				}
 
-				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nCost: %s\nURL: %s\nImage: %s\nGoogle Maps Link: %s\n\n",
-					details.Name, eventDate, cleanedAddress, details.Description, details.Cost, details.URL, details.ImageURL, googleMapsLink)
-			}
-		}
-	})
+// 				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nCost: %s\nURL: %s\nImage: %s\nGoogle Maps Link: %s\n\n",
+// 					details.Name, eventDate, cleanedAddress, details.Description, details.Cost, details.URL, details.ImageURL, googleMapsLink)
+// 			}
+// 		}
+// 	})
 
-	// Handle API responses to get event data
-	apiCollector.OnResponse(func(r *colly.Response) {
-		var events []struct {
-			Title struct {
-				Rendered string `json:"rendered"`
-			} `json:"title"`
-			Content struct {
-				Rendered string `json:"rendered"`
-			} `json:"content"`
-			MetaFields struct {
-				EventStartDate string `json:"_EventStartDate"`
-				EventEndDate   string `json:"_EventEndDate"`
-				EventCost      string `json:"_EventCost"`
-			} `json:"meta_fields"`
-			Link      string   `json:"link"`
-			ThumbURL  string   `json:"thumb_url"`
-			ClassList []string `json:"class_list"`
-		}
+// 	// Handle API responses to get event data
+// 	apiCollector.OnResponse(func(r *colly.Response) {
+// 		var events []struct {
+// 			Title struct {
+// 				Rendered string `json:"rendered"`
+// 			} `json:"title"`
+// 			Content struct {
+// 				Rendered string `json:"rendered"`
+// 			} `json:"content"`
+// 			MetaFields struct {
+// 				EventStartDate string `json:"_EventStartDate"`
+// 				EventEndDate   string `json:"_EventEndDate"`
+// 				EventCost      string `json:"_EventCost"`
+// 			} `json:"meta_fields"`
+// 			Link      string   `json:"link"`
+// 			ThumbURL  string   `json:"thumb_url"`
+// 			ClassList []string `json:"class_list"`
+// 		}
 
-		if err := json.Unmarshal(r.Body, &events); err != nil {
-			log.Println("JSON parse error:", err)
-			return
-		}
+// 		if err := json.Unmarshal(r.Body, &events); err != nil {
+// 			log.Println("JSON parse error:", err)
+// 			return
+// 		}
 
-		// Process each event
-		for _, event := range events {
-			cleanedEventName := CleanWhiteSpaces(event.Title.Rendered)
-			cleanedEventDescription := CleanWhiteSpaces(event.Content.Rendered)
-			cleanedEventStartDate := CleanWhiteSpaces(event.MetaFields.EventStartDate)
-			cleanedEventEndDate := CleanWhiteSpaces(event.MetaFields.EventEndDate)
-			cleanedEventCost := CleanWhiteSpaces(event.MetaFields.EventCost)
-			cleanedImageURL := CleanWhiteSpaces(event.ThumbURL)
-			eventURL := CleanWhiteSpaces(event.Link)
+// 		// Process each event
+// 		for _, event := range events {
+// 			cleanedEventName := CleanWhiteSpaces(event.Title.Rendered)
+// 			cleanedEventDescription := CleanWhiteSpaces(event.Content.Rendered)
+// 			cleanedEventStartDate := CleanWhiteSpaces(event.MetaFields.EventStartDate)
+// 			cleanedEventEndDate := CleanWhiteSpaces(event.MetaFields.EventEndDate)
+// 			cleanedEventCost := CleanWhiteSpaces(event.MetaFields.EventCost)
+// 			cleanedImageURL := CleanWhiteSpaces(event.ThumbURL)
+// 			eventURL := CleanWhiteSpaces(event.Link)
 
-			// Parse class_list for categories and tags
-			var categories, tags []string
-			for _, class := range event.ClassList {
-					category := strings.ReplaceAll(class[4:], "-", " ")
-					categories = append(categories, cases.Title(language.English).String(category))
-				}
-				if strings.HasPrefix(class, "tag-") {
-					tag := strings.ReplaceAll(class[4:], "-", " ")
-					tags = append(tags, strings.Title(tag))
-				}
-			}
-			categoryString := strings.Join(categories, ", ")
-			tagString := strings.Join(tags, ", ")
+// 			// Parse class_list for categories and tags
+// 			var categories, tags []string
+// 			for _, class := range event.ClassList {
+// 					category := strings.ReplaceAll(class[4:], "-", " ")
+// 					categories = append(categories, cases.Title(language.English).String(category),)
+// 				}
+// 				if strings.HasPrefix(class, "tag-") {
+// 					tag := strings.ReplaceAll(class[4:], "-", " ")
+// 					tags = append(tags, strings.Title(tag))
+// 				}
+// 			}
+// 			categoryString := strings.Join(categories, ", ")
+// 			tagString := strings.Join(tags, ", ")
 
-			// Store event details in the map
-			eventDetails[eventURL] = struct {
-				Name        string
-				Description string
-				StartDate   string
-				EndDate     string
-				Cost        string
-				ImageURL    string
-				URL         string
-				Category	string
-				Tags		string	
-			}{
-				Name:        cleanedEventName,
-				Description: cleanedEventDescription,
-				StartDate:   cleanedEventStartDate,
-				EndDate:     cleanedEventEndDate,
-				Cost:        cleanedEventCost,
-				ImageURL:    cleanedImageURL,
-				URL:         eventURL,
-				Category:	categoryString,
-				Tags:		tagString,
-			}
+// 			// Store event details in the map
+// 			eventDetails[eventURL] = struct {
+// 				Name        string
+// 				Description string
+// 				StartDate   string
+// 				EndDate     string
+// 				Cost        string
+// 				ImageURL    string
+// 				URL         string
+// 				Category	string
+// 				Tags		string
+// 			}{
+// 				Name:        cleanedEventName,
+// 				Description: cleanedEventDescription,
+// 				StartDate:   cleanedEventStartDate,
+// 				EndDate:     cleanedEventEndDate,
+// 				Cost:        cleanedEventCost,
+// 				ImageURL:    cleanedImageURL,
+// 				URL:         eventURL,
+// 				Category:	categoryString,
+// 				Tags:		tagString,
+// 			}
 
-			// Visit the event page to scrape the address and Google Maps link
-			eventPageCollector.Visit(eventURL)
-		}
+// 			// Visit the event page to scrape the address and Google Maps link
+// 			eventPageCollector.Visit(eventURL)
+// 		}
 
-		// Continue to the next page
-		if len(events) > 0 && page < maxPages {
-			page++
-			apiURL := fmt.Sprintf(baseURL, page)
-			fmt.Println("Fetching next page:", apiURL)
-			apiCollector.Visit(apiURL)
-		} else {
-			fmt.Println("No more events or reached max pages. Stopping.")
-		}
-	})
+// 		// Continue to the next page
+// 		if len(events) > 0 && page < maxPages {
+// 			page++
+// 			apiURL := fmt.Sprintf(baseURL, page)
+// 			fmt.Println("Fetching next page:", apiURL)
+// 			apiCollector.Visit(apiURL)
+// 		} else {
+// 			fmt.Println("No more events or reached max pages. Stopping.")
+// 		}
+// 	})
 
-	// Start scraping from page 1
-	apiURL := fmt.Sprintf(baseURL, page)
-	fmt.Println("Fetching:", apiURL)
-	apiCollector.Visit(apiURL)
-}
+// 	// Start scraping from page 1
+// 	apiURL := fmt.Sprintf(baseURL, page)
+// 	fmt.Println("Fetching:", apiURL)
+// 	apiCollector.Visit(apiURL)
+// }
 
 func ScrapeGainesvilleSun() {
 	baseURL := "https://discovery.evvnt.com/api/publisher/458/home_page_events?hitsPerPage=30&page=%d&publisher_id=458"

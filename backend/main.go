@@ -74,7 +74,7 @@ func main() {
 		log.Println("Waiting before starting scraper...")
 		time.Sleep(10 * time.Second) // Add a delay to let the server start first
 		log.Println("Starting scraper...")
-		scraper.ScrapeVisitGainesville()
+		// scraper.ScrapeVisitGainesville()
 		scraper.ScrapeGainesvilleSun()
 		log.Println("Scraping completed")
 	}()
