@@ -22,6 +22,7 @@ type Event struct {
 	GoogleMapsLink  string    `json:"google_maps_link"`          // Google Maps directions link
 	Website         string    `json:"website"`                   // Event website link
 	ImageURL        string    `json:"image_url"`                 // URL for the event image
+	TicketsURL      string    `json:"tickets_url"`               // URL for the event tickets
 	MaxParticipants uint      `json:"max_participants"`          // Add max_participants field (type: int)
 	ContactDetails  string    `json:"contact_details"`           // Contact details for event
 	Likes           uint      `json:"likes"`                     // Number of likes for the event

@@ -122,3 +122,23 @@ func GetOrganizerByID(c *gin.Context) {
 		"organizer": organizer,
 	})
 }
+
+func GetOrganizerByName(c *gin.Context) {
+	name := c.Param("name")
+
+	var organizer data.Organizer
+	// Find the organizer by name
+	if err := database.DB.Where("name = ?", name).First(&organizer).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Organizer not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve organizer"})
+		return
+	}
+
+	// Return the organizer details
+	c.JSON(http.StatusOK, gin.H{
+		"organizer": organizer,
+	})
+}
