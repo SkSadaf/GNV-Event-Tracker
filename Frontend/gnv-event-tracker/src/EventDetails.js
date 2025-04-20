@@ -299,19 +299,12 @@ const EventDetails = () => {
               </span>
             </div>
             
-            {eventDetails.Organizer?.name && (
+            {eventDetails.organizer?.name && (
               <div className="event-info-item">
                 <span className="event-info-label">Organizer:</span>
-                <span className="event-info-value">{eventDetails.Organizer.name}</span>
+                <span className="event-info-value">{eventDetails.organizer.name}</span>
               </div>
-            )}
-            
-            {(eventDetails.contact_details || eventDetails.Organizer?.contact_details) && (
-              <div className="event-info-item">
-                <span className="event-info-label">Contact:</span>
-                <span className="event-info-value">{eventDetails.contact_details || eventDetails.Organizer.contact_details}</span>
-              </div>
-            )}
+            )}                                
             
             {eventDetails.website && (
               <div className="event-info-item">
@@ -324,6 +317,22 @@ const EventDetails = () => {
                     className="event-link"
                   >
                     {eventDetails.website}
+                  </a>
+                </span>
+              </div>
+            )}
+
+            {eventDetails.tickets_url && (
+              <div className="event-info-item">
+                <span className="event-info-label">Ticket URL:</span>
+                <span className="event-info-value">
+                  <a 
+                    href={eventDetails.tickets_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="event-link"
+                  >
+                    {eventDetails.tickets_url}
                   </a>
                 </span>
               </div>
