@@ -9,6 +9,18 @@
   <li>Jest Unit test for login page, SignUp page, all events page, create event page, user profile</li>
   <li>Enhanced CSS</li>
   <li>Added more information on the individual event details page</li>
+  <li>Modified backend server to start before scraping</li>
+  <li>Added backend API for broadcasting real-time notification updates with websocket</li>
+  <li>Added health check API to check if backend server is up</li>
+  <li>Modified Remove user to handle cases to unmap user from event, delete events created by the user, remove user as an organizer and delete the user according to new organizer id sequence mapping to event</li>
+  <li>Modifed user name displayed in comments when user profile is deleted and comment updated in the events table</li>
+  <li>Added weather API to provide current and future weather forecasts</li>
+  <li>Modified create event to map user to organizer table with user details and new sequence id of organizer and check if user email already exists as an organizer</li>
+<li>Duplicate email check added for create organizer API</li>
+<li>Populate latitude longitude updated for different format of location strings for scraped events</li>
+<li>Added and modified golang test cases</li>
+  
+
 </ul>
 
 <h2>Frontend</h2>
