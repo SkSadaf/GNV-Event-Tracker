@@ -11,3 +11,11 @@ The application provides real-time notifications about new events or any changes
 - **Sparsh Rathi** (UFID: 34225674) - Frontend
 - **Rishma Manna** (UFID: 53560448) - Backend
 - **Aria Yousefi** (UFID: 27514943) - Backend
+
+
+# Tech Stack
+
+Go + version
+sqlite-version
+test execution commands
+
