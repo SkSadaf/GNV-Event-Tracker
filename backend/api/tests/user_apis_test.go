@@ -218,13 +218,12 @@ func TestRemoveUser_Success(t *testing.T) {
         t.Errorf("Expected status code %d, got %d", http.StatusOK, res.Code)
     }
 
-    // Check if the response body contains the success message
-    expected := `{"message":"User deleted successfully","user_id":` + strconv.Itoa(int(user.ID)) + `}`
-    actual := strings.TrimSpace(res.Body.String())
+	expected := `{"message":"User and related organizer (if any) deleted successfully","user_id":` + strconv.Itoa(int(user.ID)) + `}`
+	actual := strings.TrimSpace(res.Body.String())
 
-    if actual != expected {
-        t.Errorf("Expected body to be %q, got %q", expected, actual)
-    }
+	if actual != expected {
+		t.Errorf("Expected body to be %q, got %q", expected, actual)
+	}
 }
 
 func TestRemoveUser_NotFound(t *testing.T) {
