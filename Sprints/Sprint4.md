@@ -13,11 +13,11 @@
   <li>Added backend API for broadcasting real-time notification updates with websocket</li>
   <li>Added health check API to check if backend server is up</li>
   <li>Modified Remove user to handle cases to unmap user from event, delete events created by the user, remove user as an organizer and delete the user according to new organizer id sequence mapping to event</li>
-  <li>Modifed user name displayed in comments when user profile is deleted and comment updated in the events table</li>
+  <li>Modified user name displayed in comments when user profile is deleted and comment updated in the events table</li>
   <li>Added weather API to provide current and future weather forecasts</li>
   <li>Modified create event to map user to organizer table with user details and new sequence id of organizer and check if user email already exists as an organizer</li>
 <li>Duplicate email check added for create organizer API</li>
-<li>Populate latitude longitude updated for different format of location strings for scraped events</li>
+<li>Populate latitude longitude updated for different formats of location strings for scraped events</li>
 <li>Added and modified golang test cases</li>
   
 
@@ -29,7 +29,7 @@
 <ul>
   <li>Sign Up page - unit test is done for this which covers form display, input, submission, errors</li>
   <li>Login page - unit test is done for this which covers form display, input, submission, errors</li>
-  <li>Search - unit test needs is dones</li>
+  <li>Search - unit test needs is done</li>
   <li>Log out - unit test needs is done</li>
   <li>User Profile - unit test is done for this which covers edit profile and delete profile.</li>
   <li>Create event page- unit test is done for this which covers form display, input, tags, cancel button, event creation, errors, handling empty fields  </li>
@@ -238,12 +238,12 @@ DELETE
 **URL:**
 http://localhost:8080/users/1
 
-<img width="1033" alt="image" src="https://github.com/user-attachments/assets/4da27ada-333d-4cc9-9396-3f78fa35d469" />
+<img width="964" alt="image" src="https://github.com/user-attachments/assets/368ede5c-8bce-4a73-86fc-cd3f23ca1c3f" />
 
 
 **Sample Response**
 
-<img width="1026" alt="image" src="https://github.com/user-attachments/assets/125e8f0c-9711-4d26-b5f0-deb9fac08d9e" />
+<img width="964" alt="image" src="https://github.com/user-attachments/assets/75052645-514a-4a1e-b735-7a20f0de72eb" />
 
 
 **14. RegisterUser API**
@@ -369,6 +369,36 @@ http://localhost:8080/event/1/users
 **Sample Response**
 
 <img width="1000" alt="image" src="https://github.com/user-attachments/assets/8ab4c3b1-74bd-4862-88ca-6669e97f3ebe" />
+
+**22. Health Check API**
+
+**Request Method:**
+GET
+
+**URL:**
+http://localhost:8080/health
+
+<img width="972" alt="image" src="https://github.com/user-attachments/assets/d02a9061-aaf3-4900-8796-1840e89685fb" />
+
+**Sample Response**
+
+<img width="963" alt="image" src="https://github.com/user-attachments/assets/cfe878b2-2315-49fc-95d7-acd9fea0e262" />
+
+
+**23. Weather Forecast API**
+
+**Request Method:**
+GET
+
+**URL:**
+http://localhost:8080/event/18/weather
+
+<img width="955" alt="image" src="https://github.com/user-attachments/assets/c0662d07-6e92-47be-8733-fc5f9d7cbc84" />
+
+**Sample Response**
+
+<img width="966" alt="image" src="https://github.com/user-attachments/assets/23291215-7220-4722-bda8-6fdc87835d63" />
+
 
 <h3>Backend Unit Tests</h3>
 <ul>
