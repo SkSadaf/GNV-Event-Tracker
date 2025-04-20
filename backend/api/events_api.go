@@ -480,7 +480,7 @@ func GetRegisteredEvents(c *gin.Context) {
 		return
 	}
 
-	var eventDTOs []data.EventDTO
+	eventDTOs := make([]data.EventDTO, 0)
 
 	for _, event := range events {
 		var organizer data.Organizer
