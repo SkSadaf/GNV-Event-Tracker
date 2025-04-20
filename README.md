@@ -17,4 +17,5 @@ The application provides real-time notifications about new events or any changes
 
 Go + version
 sqlite-version
+test execution commands
 
