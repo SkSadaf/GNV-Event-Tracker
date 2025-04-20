@@ -306,6 +306,20 @@ const EventDetails = () => {
               </div>
             )}                                
             
+            {(eventDetails.email || eventDetails.organizer?.email) && (
+              <div className="event-info-item">
+                <span className="event-info-label">Email:</span>
+                <span className="event-info-value">
+                  <a 
+                    href={`mailto:${eventDetails.email || eventDetails.organizer.email}`}
+                    className="event-link"
+                  >
+                    {eventDetails.email || eventDetails.organizer.email}
+                  </a>
+                </span>
+              </div>
+            )}
+
             {eventDetails.website && (
               <div className="event-info-item">
                 <span className="event-info-label">Website:</span>
