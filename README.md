@@ -16,4 +16,5 @@ The application provides real-time notifications about new events or any changes
 # Tech Stack
 
 Go + version
+sqlite-version
 
