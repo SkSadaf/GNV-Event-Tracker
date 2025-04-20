@@ -19,6 +19,7 @@
   <li>Login page - unit test is done for this which covers form display, input, submission, errors</li>
   <li>Search - unit test needs is dones</li>
   <li>Log out - unit test needs is done</li>
+  <li>User Profile - unit test is done for this which covers edit profile and delete profile.</li>
   <li>Create event page- unit test is done for this which covers form display, input, tags, cancel button, event creation, errors, handling empty fields  </li>
 </ul>
 
