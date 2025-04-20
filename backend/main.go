@@ -60,6 +60,7 @@ func main() {
 	r.GET("/events/:event_id/GetAllComments", api.GetAllComments)
 	r.GET("/event/:event_id/users", api.GetUsersByEvent)
 	r.GET("/ws", api.WebSocketHandler)
+	r.GET("/event/:event_id/weather", api.GetWeatherByEventID)
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
