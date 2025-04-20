@@ -14,8 +14,15 @@ The application provides real-time notifications about new events or any changes
 
 
 # Tech Stack
+## Backend
+1. Go version: go1.23.3 darwin/amd64
+2. SQLite version: 3.46.1
 
-Go + version
-sqlite-version
-test execution commands
+# Execution Commands
+## Backend server
+1. cd backend/
+2. go run main.go
+## Backend Tests
+1. cd backend/api/tests
+2. go test -v
 
