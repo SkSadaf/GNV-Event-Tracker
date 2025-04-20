@@ -15,8 +15,8 @@ The application provides real-time notifications about new events or any changes
 
 # Tech Stack
 ## Backend
-Go version: go1.23.3 darwin/amd64
-SQLite version: 3.46.1
+1. Go version: go1.23.3 darwin/amd64
+2. SQLite version: 3.46.1
 
 # Execution Commands
 ## Backend server
