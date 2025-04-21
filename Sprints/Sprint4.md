@@ -16,9 +16,9 @@
   <li>Modified user name displayed in comments when user profile is deleted and comment updated in the events table</li>
   <li>Added weather API to provide current and future weather forecasts</li>
   <li>Modified create event to map user to organizer table with user details and new sequence id of organizer and check if user email already exists as an organizer</li>
-<li>Duplicate email check added for create organizer API</li>
-<li>Populate latitude longitude updated for different formats of location strings for scraped events</li>
-<li>Added and modified golang test cases</li>
+  <li>Duplicate email check added for create organizer API</li>
+  <li>Populate latitude longitude updated for different formats of location strings for scraped events</li>
+  <li>Added and modified golang test cases</li>
   
 
 </ul>
@@ -27,21 +27,21 @@
 
 <h3>Unit Tests</h3>
 <ul>
-  <li>Sign Up page - unit test is done for this which covers form display, input, submission, errors</li>
-  <li>Login page - unit test is done for this which covers form display, input, submission, errors</li>
-  <li>Search - unit test needs is done</li>
-  <li>Log out - unit test needs is done</li>
-  <li>User Profile - unit test is done for this which covers edit profile and delete profile.</li>
-  <li>Create event page- unit test is done for this which covers form display, input, tags, cancel button, event creation, errors, handling empty fields  </li>
+  <li><strong>Sign Up</strong> - unit test is done for this which covers form display, input, submission, errors</li>
+  <li><strong>Login</strong> - unit test is done for this which covers form display, input, submission, errors</li>
+  <li><strong>Search</strong> - unit test is done which covers different cases of search</li>
+  <li><strong>Log out</strong> - unit test is done which checks the logout button functionality</li>
+  <li><strong>User Profile</strong> - unit test is done for this which covers edit profile and delete profile.</li>
+  <li><strong>Create event form</strong> - unit test is done for this which covers form display, input, tags, cancel button, event creation, errors, handling empty fields</li>
 </ul>
 
 <h3>Cypress Tests</h3>
 <ul>
-  <li>Mainpage - e2e test</li>
-  <li>Dashboard - e2e test is done for this which covers unregister, create event and displaying of content</li>
-  <li>Event details- e2e tests are done wich covers content display, users registration state, comment, registration functionality</li>
-  <li>Map page- e2e test are done that covers content, map, pins, pop up , link in pop up</li>
-  <li>All Events- e2e test is done for this which covers content(list of events), links</li>
+  <li><strong>Mainpage</strong> - e2e test</li>
+<li><strong>Dashboard</strong> - e2e test is done for this which covers unregister, create event and displaying of content</li>
+<li><strong>Event details</strong> - e2e tests are done which cover content display, users registration state, comment, registration functionality</li>
+<li><strong>Map page</strong> - e2e tests are done that cover content, map, pins, pop up, link in pop up</li>
+<li><strong>All Events</strong> - e2e test is done for this which covers content (list of events), links</li>
 </ul>
 
 
