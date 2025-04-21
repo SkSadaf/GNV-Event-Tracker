@@ -407,6 +407,11 @@ http://localhost:8080/event/18/weather
   <li>Organizer API tests</li>
 </ul>
 
+<img width="881" alt="image" src="https://github.com/user-attachments/assets/136f751b-34be-4a60-926e-2a4c55f984b6" />
+<img width="1081" alt="image" src="https://github.com/user-attachments/assets/514aa447-2a80-4b19-ae07-3b6ad1b0e170" />
+<img width="962" alt="image" src="https://github.com/user-attachments/assets/94fe5b96-9bd2-4d2a-adb1-54ef33491890" />
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/df61a08f-260e-4098-86b4-257de99ddd14" />
+
 
 **Running unit tests:**
 
