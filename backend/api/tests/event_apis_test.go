@@ -6,9 +6,11 @@ import (
 	"backend/database"
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -478,5 +480,110 @@ func TestGetUsersByEvent_Success(t *testing.T) {
 	assert.Equal(t, user2.Name, users[1].Name)
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
+func TestGetWeatherByEventID_Success(t *testing.T) {
+	// Setup
+	gin.SetMode(gin.TestMode)
+	db := setupTestDB()
+	database.DB = db
 
+	// Create a test event with known lat/lon
+	event := data.Event{
+		ID:        100,
+		Name:      "Test Weather Event",
+		Latitude:  59.91,
+		Longitude: 10.75,
+	}
+	db.Create(&event)
+
+	// Mock weather API response (just enough structure to pass parsing)
+	mockWeatherResponse := `{
+		"properties": {
+			"timeseries": [{
+				"time": "2025-04-20T07:00:00Z",
+				"data": {
+					"instant": {
+						"details": {
+							"air_temperature": 15.0,
+							"humidity": 60.0,
+							"pressure": 1010.0,
+							"wind_speed": 5.5
+						}
+					},
+					"next_6_hours": {
+						"summary": {
+							"symbol_code": "clearsky_day"
+						},
+						"details": {
+							"precipitation_amount": 0.0
+						}
+					}
+				}
+			}]
+		}
+	}`
+
+	// Replace http.DefaultClient with a mocked one
+	apiHttpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) *http.Response {
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(mockWeatherResponse)),
+				Header:     make(http.Header),
+			}
+		}),
+	}
+	// Swap the default client temporarily (assuming api uses it)
+	oldClient := http.DefaultClient
+	http.DefaultClient = apiHttpClient
+	defer func() { http.DefaultClient = oldClient }()
+
+	// Prepare request
+	req, _ := http.NewRequest(http.MethodGet, "/event/100/weather", nil)
+	w := httptest.NewRecorder()
+
+	// Setup Gin router and route
+	router := gin.Default()
+	router.GET("/event/:event_id/weather", api.GetWeatherByEventID)
+	router.ServeHTTP(w, req)
+
+	// Assert status
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// Parse response
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.Nil(t, err)
+
+	// Assertions on the response
+	assert.Equal(t, float64(100), response["event_id"])
+	assert.Equal(t, "Test Weather Event", response["event_name"])
+
+	// Check current_weather structure
+	currentWeather, ok := response["current_weather"].(map[string]interface{})
+	assert.True(t, ok)
+	assert.Equal(t, 15.0, currentWeather["temperature"])
+	assert.Equal(t, 60.0, currentWeather["humidity"])
+	assert.Equal(t, 1010.0, currentWeather["pressure"])
+	assert.Equal(t, 5.5, currentWeather["wind_speed"])
+
+	// Check forecast
+	forecast, ok := response["forecast"].([]interface{})
+	assert.True(t, ok)
+	assert.Len(t, forecast, 1)
+
+	dayForecast := forecast[0].(map[string]interface{})
+	assert.Equal(t, "2025-04-20", dayForecast["date"])
+	assert.Equal(t, 15.0, dayForecast["temperature_min"])
+	assert.Equal(t, 15.0, dayForecast["temperature_max"])
+	assert.Equal(t, "clearsky_day", dayForecast["symbol"])
+	assert.Equal(t, 0.0, dayForecast["precipitation"])
+}
+
+// Custom roundTripper to mock HTTP client
+type roundTripFunc func(req *http.Request) *http.Response
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req), nil
+}
