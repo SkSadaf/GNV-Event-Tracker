@@ -5,7 +5,7 @@ describe('The Home Page', () => {
 
   it('displays the header correctly', () => {
     cy.get('header').should('be.visible')
-    cy.get('header').contains('Gainesville Events')
+    cy.get('header').contains('GNV Events')
     cy.get('header nav').should('exist')
     cy.get('header nav').contains('Log In')
     cy.get('header nav').contains('Sign Up')
@@ -14,21 +14,21 @@ describe('The Home Page', () => {
   it('displays the main content', () => {
     cy.get('main').should('be.visible')
     cy.get('h1').contains('Welcome to Gainesville Events')
-    cy.get('h2').contains('Discover the Best of Gainesville, One Event at a Time.')
+    cy.get('.hero-tagline').contains('Discover the Best of Gainesville, One Event at a Time.')
   })
 
   it('displays feature sections', () => {
     cy.get('.feature-card').should('have.length', 4)
+    cy.contains('Discover Events')
     cy.contains('Interactive Map')
-    cy.contains('Event Recommendations')
-    cy.contains('User-Generated Content')
-    cy.contains('Group Creation')
+    cy.contains('Create Itineraries')
+    cy.contains('Share Experiences')
   })
 
-  it('displays benefits list', () => {
-    cy.get('h2').contains('Benefits of Using Gainesville Events')
-    cy.get('ul').should('exist')
-    cy.get('ul li').should('have.length.at.least', 4)
+  it('displays benefits section', () => {
+    cy.get('.section-title').contains('Why Use Gainesville Events?')
+    cy.get('.benefit-item').should('exist')
+    cy.get('.benefit-item').should('have.length', 4)
   })
 
   it('has working navigation links', () => {
@@ -42,17 +42,14 @@ describe('The Home Page', () => {
   })
 
   it('is responsive', () => {
-    // Test on mobile viewport
     cy.viewport('iphone-6')
     cy.get('header').should('be.visible')
     cy.get('main').should('be.visible')
 
-    // Test on tablet viewport
     cy.viewport('ipad-2')
     cy.get('header').should('be.visible')
     cy.get('main').should('be.visible')
 
-    // Test on desktop viewport
     cy.viewport(1280, 720)
     cy.get('header').should('be.visible')
     cy.get('main').should('be.visible')

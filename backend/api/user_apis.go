@@ -96,13 +96,34 @@ func RemoveUser(c *gin.Context) {
 	userID := c.Param("id") // Get the user ID from the URL parameter
 	var user data.User
 
-	// Check if the user exists
+	// Step 1: Fetch user
 	if err := database.DB.First(&user, userID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	// Delete the user
+	// Step 2: Remove user-event associations
+	if err := database.DB.Model(&user).Association("Events").Clear(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove user-event associations"})
+		return
+	}
+
+	// Step 3: Check if there's an organizer with same name and email
+	var organizer data.Organizer
+	if err := database.DB.Where("name = ? AND email = ?", user.Name, user.Email).First(&organizer).Error; err == nil {
+		// Step 3a: Delete all events created by that organizer
+		if err := database.DB.Where("organizer_id = ?", organizer.ID).Delete(&data.Event{}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete organizer's events"})
+			return
+		}
+		// Step 3b: Delete the organizer
+		if err := database.DB.Delete(&organizer).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete organizer"})
+			return
+		}
+	}
+
+	// Step 4: Delete the user
 	if err := database.DB.Delete(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
 		return
@@ -110,7 +131,7 @@ func RemoveUser(c *gin.Context) {
 
 	// Return a success message
 	c.JSON(http.StatusOK, gin.H{
-		"message": "User deleted successfully",
+		"message": "User and related organizer (if any) deleted successfully",
 		"user_id": user.ID,
 	})
 }

@@ -3,6 +3,7 @@ import axios from 'axios';
 import './styles/Dashboard.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
+import Notification from './Notification';
 
 const Dashboard = () => {
   const [registeredEvents, setRegisteredEvents] = useState([]);
@@ -69,42 +70,54 @@ const Dashboard = () => {
     navigate('/create-event');
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="dashboard loading">Loading...</div>;
+  if (error) return <div className="dashboard error">{error}</div>;
 
   return (
     <div className="dashboard">
-      {/* Create Event button at the top */}
-      <div className="create-event-container">
-        <button onClick={handleCreateEvent} className="create-event-button">
-          Create New Event
-        </button>
+      {/* Dashboard header with notification bell */}
+      <div className="dashboard-header">
+        <h1>My Dashboard</h1>
+        <div className="dashboard-actions">
+          <Notification />
+          <button onClick={handleCreateEvent} className="create-event-button">
+            Create New Event
+          </button>
+        </div>
       </div>
-
-      <h2>My Registered Events</h2>
-      {registeredEvents.length === 0 ? (
-        <p>You haven't registered for any events yet.</p>
-      ) : (
-        <ul className="event-list">
-          {registeredEvents.map((event) => (
-            <li key={event.id} className="event-item">
-              <div className="event-header">
-                <Link to={`/events/${event.id}`}>
-                  <h3>{event.name}</h3>
-                </Link>
-                <button 
-                  className="unregister-button"
-                  onClick={() => handleUnregister(event.id)}
-                >
-                  Unregister
-                </button>
-              </div>
-              <p>Date: {event.date}</p>
-              <p>Location: {event.location}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+      
+      <div className="dashboard-content">
+        <h2>My Registered Events</h2>
+        {registeredEvents.length === 0 ? (
+          <div className="no-events">
+            <p>You haven't registered for any events yet.</p>
+            <p>Browse events to find something interesting!</p>
+            <button onClick={() => navigate('/events')} className="browse-button">
+              Browse Events
+            </button>
+          </div>
+        ) : (
+          <ul className="event-list">
+            {registeredEvents.map((event) => (
+              <li key={event.id} className="event-item">
+                <div className="event-header">
+                  <Link to={`/events/${event.id}`}>
+                    <h3>{event.name}</h3>
+                  </Link>
+                  <button 
+                    className="unregister-button"
+                    onClick={() => handleUnregister(event.id)}
+                  >
+                    Unregister
+                  </button>
+                </div>
+                <p>Date: {event.date}</p>
+                <p>Location: {event.location}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };

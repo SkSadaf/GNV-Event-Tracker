@@ -164,49 +164,199 @@ const EventDetails = () => {
     return date.toLocaleString();
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  // Format price for display
+  const formatPrice = (price) => {
+    if (price === 0) return 'Free';
+    return `$${price.toFixed(2)}`;
+  };
+  
+  // Render tags as separate elements
+  const renderTags = (tagsString) => {
+    if (!tagsString) return null;
+    
+    // Split tags by comma, space, or both
+    const tagArray = tagsString.split(/,\s*|\s+/);
+    
+    return (
+      <div className="event-tags">
+        {tagArray.map((tag, index) => (
+          tag.trim() && <span key={index} className="tag">{tag.trim()}</span>
+        ))}
+      </div>
+    );
+  };
+
+  // Check if the event is full (when max participants > 0)
+  const isEventFull = eventDetails?.max_participants > 0 && attendeeCount >= eventDetails.max_participants;
+
+  if (loading) return <div className="loading-indicator">Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="event-details">
       <div className="event-header">
         <h2>Event Details</h2>
         <div className="attendee-count">
-          <p><strong>{attendeeCount}</strong> {attendeeCount === 1 ? 'person' : 'people'} going for this event</p>
+          <p>
+            <strong>{attendeeCount}</strong> {attendeeCount === 1 ? 'person' : 'people'} going
+            {eventDetails?.max_participants > 0 && 
+              ` (Max: ${eventDetails.max_participants})`}
+          </p>
         </div>
       </div>
 
       {eventDetails && (
         <>
-          <p><strong>Event Name:</strong> {eventDetails.name}</p>
-          <p><strong>Description:</strong> {eventDetails.description}</p>
-          <p><strong>Date:</strong> {eventDetails.date}</p>
-          <p><strong>Location:</strong> {eventDetails.location}</p>
-          
-          <p>
-            <strong>Google Maps:</strong> {' '}
-            {eventDetails.google_maps_link ? (
-              <a 
-                href={eventDetails.google_maps_link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                View on Google Maps
-              </a>
-            ) : (
-              'No map link available'
+          {/* Display event image if available */}
+          {eventDetails.image_url && (
+            <div className="event-image-container">
+              <img 
+                src={eventDetails.image_url} 
+                alt={`${eventDetails.name}`} 
+                className="event-image"
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+
+          {/* Event information container with enhanced styling */}
+          <div className="event-info-container">
+            <div className="event-info-item">
+              <span className="event-info-label">Event Name:</span>
+              <span className="event-info-value">{eventDetails.name}</span>
+            </div>
+            
+            <div className="event-info-item description">
+              <span className="event-info-label">Description:</span>
+              <span className="event-info-value">{eventDetails.description}</span>
+            </div>
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Date:</span>
+              <span className="event-info-value">{eventDetails.date}</span>
+            </div>
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Location:</span>
+              <span className="event-info-value">{eventDetails.location}</span>
+            </div>
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Google Maps:</span>
+              <span className="event-info-value">
+                {eventDetails.google_maps_link ? (
+                  <a 
+                    href={eventDetails.google_maps_link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="event-link"
+                  >
+                    View on Google Maps
+                  </a>
+                ) : (
+                  'No map link available'
+                )}
+              </span>
+            </div>
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Directions:</span>
+              <span className="event-info-value">
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(eventDetails.location)}&origin=current+location`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="event-link"
+                >
+                  Plan my itinerary
+                </a>
+              </span>
+            </div>
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Category:</span>
+              <span className="event-info-value">
+                <span className="category-badge">{eventDetails.category}</span>
+              </span>
+            </div>
+            
+            {eventDetails.tags && (
+              <div className="event-info-item">
+                <span className="event-info-label">Tags:</span>
+                <span className="event-info-value">
+                  {renderTags(eventDetails.tags)}
+                </span>
+              </div>
             )}
-          </p>
-          <p>
-            <strong>Directions:</strong> {' '}
-            <a 
-              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(eventDetails.location)}&origin=current+location`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              Plan my itinerary
-            </a>
-          </p>
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Cost:</span>
+              <span className="event-info-value">
+                <span className="cost-badge">{formatPrice(eventDetails.cost)}</span>
+              </span>
+            </div>
+            
+            {eventDetails.organizer?.name && (
+              <div className="event-info-item">
+                <span className="event-info-label">Organizer:</span>
+                <span className="event-info-value">{eventDetails.organizer.name}</span>
+              </div>
+            )}                                
+            
+            {(eventDetails.email || eventDetails.organizer?.email) && (
+              <div className="event-info-item">
+                <span className="event-info-label">Email:</span>
+                <span className="event-info-value">
+                  <a 
+                    href={`mailto:${eventDetails.email || eventDetails.organizer.email}`}
+                    className="event-link"
+                  >
+                    {eventDetails.email || eventDetails.organizer.email}
+                  </a>
+                </span>
+              </div>
+            )}
+
+            {eventDetails.website && (
+              <div className="event-info-item">
+                <span className="event-info-label">Website:</span>
+                <span className="event-info-value">
+                  <a 
+                    href={eventDetails.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="event-link"
+                  >
+                    {eventDetails.website}
+                  </a>
+                </span>
+              </div>
+            )}
+
+            {eventDetails.tickets_url && (
+              <div className="event-info-item">
+                <span className="event-info-label">Ticket URL:</span>
+                <span className="event-info-value">
+                  <a 
+                    href={eventDetails.tickets_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="event-link"
+                  >
+                    {eventDetails.tickets_url}
+                  </a>
+                </span>
+              </div>
+            )}
+            
+            <div className="event-info-item">
+              <span className="event-info-label">Max Participants:</span>
+              <span className="event-info-value">{eventDetails.max_participants || 'No limit'}</span>
+            </div>
+          </div>
         </>
       )}
       
@@ -214,11 +364,21 @@ const EventDetails = () => {
         isRegistered ? (
           <button disabled className="registered-button">Already registered</button>
         ) : (
-          <button onClick={handleRegister} className="register-button">I want to go for this event</button>
+          <button 
+            onClick={isEventFull ? null : handleRegister} 
+            className={isEventFull ? "event-full-button" : "register-button"}
+            disabled={isEventFull}
+          >
+            {isEventFull ? "Event is full" : "I want to go for this event"}
+          </button>
         )
       ) : (
-        <button onClick={() => alert('Please log in to register for this event.')} className="register-button">
-          I want to go for this event
+        <button 
+          onClick={isEventFull ? null : () => alert('Please log in to register for this event.')} 
+          className={isEventFull ? "event-full-button" : "register-button"}
+          disabled={isEventFull}
+        >
+          {isEventFull ? "Event is full" : "I want to go for this event"}
         </button>
       )}
 
@@ -249,7 +409,7 @@ const EventDetails = () => {
         {/* Display existing comments */}
         <div className="comment-list">
           {comments.length === 0 ? (
-            <p>No comments yet. Be the first to comment!</p>
+            <p className="no-comments">No comments yet. Be the first to comment!</p>
           ) : (
             comments.map((comment, index) => (
               <div key={index} className="comment">

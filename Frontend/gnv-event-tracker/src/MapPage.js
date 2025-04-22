@@ -43,14 +43,13 @@ function MapPage() {
 
   return (
     <div className="map-container">
-      <h1>Events in Gainesville, Florida</h1>
       <div className="map-wrapper">
         {typeof window !== 'undefined' && (
           <MapContainer 
             center={gainesvillePosition} 
             zoom={13} 
             scrollWheelZoom={false}
-            style={{ height: '600px', width: '100%' }}
+            style={{ height: '900px', width: '100%' }}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
