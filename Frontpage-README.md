@@ -5,6 +5,7 @@
   This project is for CEN5035 (Software Engineering). 
   It is a platform where you can find local events happening around the city. Users can register, login, find all events happening in Gainesville, view event details, register for events, get notified when new events are posted, book tickets, comment on event pages, plan their itineraries, view all their registered events, create new events, view events on a map, and unregister for events if they can't make it.
 </p>
+<img width="939" alt="image" src="https://github.com/user-attachments/assets/411265bb-a23f-49da-85db-5d7d09a42c71" />
 
 
 # Team Members
