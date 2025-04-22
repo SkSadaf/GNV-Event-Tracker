@@ -5,7 +5,7 @@
   This project is for CEN5035 (Software Engineering). 
   It is a platform where you can find local events happening around the city. Users can register, login, find all events happening in Gainesville, view event details, register for events, get notified when new events are posted, book tickets, comment on event pages, plan their itineraries, view all their registered events, create new events, view events on a map, and unregister for events if they can't make it.
 </p>
-<img width="939" alt="image" src="https://github.com/user-attachments/assets/411265bb-a23f-49da-85db-5d7d09a42c71" />
+<img width="939" alt="image" src="https://github.com/user-attachments/assets/00f9b272-c4a4-4d78-b441-24ba1335815a" />
 
 
 # Team Members
@@ -36,7 +36,7 @@
 ### Cypress e2e tests
 1. cd Frontend
 2. npx cypress open
-3. Go to the e2e testing upon cypress window opening
+3. Go to the e2e testing upon cypress window opening, select any of the browser options among the ones that are displayed.
 4. Click on the test you want to run
 
 ## Backend server
