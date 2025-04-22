@@ -243,6 +243,8 @@ func PopulateLatLng(event *data.Event) error {
 
 func ScrapeVisitGainesville() {
 	baseURL := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_events?order=asc&page=%d&per_page=12&orderby=date"
+	organizerAPI1 := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_organizer?order=asc&page=1&per_page=100&orderby=date"
+	organizerAPI2 := "https://www.visitgainesville.com/wp-json/wp/v2/tribe_organizer?order=asc&page=2&per_page=100&orderby=date"
 	page := 1
 	const maxPages = 5
 
@@ -258,6 +260,12 @@ func ScrapeVisitGainesville() {
 		colly.UserAgent("Mozilla/5.0"),
 	)
 
+	// Create a collector for the organizer API
+	organizerCollector := colly.NewCollector(
+		colly.AllowedDomains("www.visitgainesville.com", "visitgainesville.com"),
+		colly.UserAgent("Mozilla/5.0"),
+	)
+
 	// Map to store event details while waiting for address scraping
 	eventDetails := make(map[string]struct {
 		Name        string
@@ -269,7 +277,11 @@ func ScrapeVisitGainesville() {
 		URL         string
 		Category    string
 		Tags        string
+		Organizer   string
 	})
+
+	// Map to cache organizer data
+	organizerCache := make(map[string]string)
 
 	// Handle individual event pages to scrape address and Google Maps link
 	eventPageCollector.OnHTML("body", func(e *colly.HTMLElement) {
@@ -286,13 +298,13 @@ func ScrapeVisitGainesville() {
 
 			// Check for duplicates before inserting into the database
 			if !CheckForDuplicateEvents(details.Name, eventDate, cleanedAddress) {
-				err := InsertEventIntoDB(details.Name, eventDate, cleanedAddress, googleMapsLink, details.Description, details.Category, "Visit Gainesville", "example@ex.com", "0000000000", details.Tags, details.ImageURL, details.URL, "")
+				err := InsertEventIntoDB(details.Name, eventDate, cleanedAddress, googleMapsLink, details.Description, details.Category, details.Organizer, "example@ex.com", "0000000000", details.Tags, details.ImageURL, details.URL, "")
 				if err != nil {
 					log.Println("Error inserting event into database:", err, "Event:", details.Name)
 				}
 
-				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nCost: %s\nURL: %s\nImage: %s\nGoogle Maps Link: %s\n\n",
-					details.Name, eventDate, cleanedAddress, details.Description, details.Cost, details.URL, details.ImageURL, googleMapsLink)
+				fmt.Printf("Event: %s\nDate: %s\nLocation: %s\nDescription: %s\nCost: %s\nURL: %s\nImage: %s\nGoogle Maps Link: %s\nOrganizer: %s\n\n",
+					details.Name, eventDate, cleanedAddress, details.Description, details.Cost, details.URL, details.ImageURL, googleMapsLink, details.Organizer)
 			}
 		}
 	})
@@ -307,9 +319,10 @@ func ScrapeVisitGainesville() {
 				Rendered string `json:"rendered"`
 			} `json:"content"`
 			MetaFields struct {
-				EventStartDate string `json:"_EventStartDate"`
-				EventEndDate   string `json:"_EventEndDate"`
-				EventCost      string `json:"_EventCost"`
+				EventStartDate   string `json:"_EventStartDate"`
+				EventEndDate     string `json:"_EventEndDate"`
+				EventCost        string `json:"_EventCost"`
+				EventOrganizerID string `json:"_EventOrganizerID,omitempty"`
 			} `json:"meta_fields"`
 			Link      string   `json:"link"`
 			ThumbURL  string   `json:"thumb_url"`
@@ -330,6 +343,7 @@ func ScrapeVisitGainesville() {
 			cleanedEventCost := CleanWhiteSpaces(event.MetaFields.EventCost)
 			cleanedImageURL := CleanWhiteSpaces(event.ThumbURL)
 			eventURL := CleanWhiteSpaces(event.Link)
+			eventOrganizerID := CleanWhiteSpaces(event.MetaFields.EventOrganizerID)
 
 			// Parse class_list for categories and tags
 			var categories, tags []string
@@ -348,6 +362,38 @@ func ScrapeVisitGainesville() {
 			categoryString := strings.Join(categories, ", ")
 			tagString := strings.Join(tags, ", ")
 
+			// Fetch organizer data
+			var organizerName string
+			if cachedName, found := organizerCache[eventOrganizerID]; found {
+				organizerName = cachedName
+			} else {
+				organizerCollector.OnResponse(func(r *colly.Response) {
+					var organizers []struct {
+						ID    string `json:"id"`
+						Title struct {
+							Rendered string `json:"rendered"`
+						} `json:"title"`
+					}
+
+					if err := json.Unmarshal(r.Body, &organizers); err != nil {
+						log.Println("JSON parse error in organizer API:", err)
+						return
+					}
+
+					for _, organizer := range organizers {
+						if organizer.ID == eventOrganizerID {
+							organizerName = CleanWhiteSpaces(organizer.Title.Rendered)
+							organizerCache[eventOrganizerID] = organizerName
+							break
+						}
+					}
+				})
+
+				// Visit the organizer API
+				organizerCollector.Visit(organizerAPI1)
+				organizerCollector.Visit(organizerAPI2)
+			}
+
 			// Store event details in the map
 			eventDetails[eventURL] = struct {
 				Name        string
@@ -359,6 +405,7 @@ func ScrapeVisitGainesville() {
 				URL         string
 				Category    string
 				Tags        string
+				Organizer   string
 			}{
 				Name:        cleanedEventName,
 				Description: cleanedEventDescription,
@@ -369,6 +416,7 @@ func ScrapeVisitGainesville() {
 				URL:         eventURL,
 				Category:    categoryString,
 				Tags:        tagString,
+				Organizer:   organizerName,
 			}
 
 			// Visit the event page to scrape the address and Google Maps link
