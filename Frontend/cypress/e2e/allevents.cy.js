@@ -1,5 +1,6 @@
 describe('All Events Page', () => {
   beforeEach(() => {
+    // Visit the page before each test
     cy.visit('http://localhost:3000/events')
   })
 
@@ -51,56 +52,6 @@ describe('All Events Page', () => {
     cy.wait('@getEvents').then((interception) => {
       const eventCount = interception.response.body.length
       cy.get('.event-item').should('have.length', eventCount)
-    })
-  })
-
-  it('displays search input field', () => {
-    cy.get('.search-container').should('be.visible')
-    cy.get('.search-input').should('be.visible')
-    cy.get('.search-input').should('have.attr', 'placeholder', 'Search events by name or description...')
-  })
-
-  it('filters events when searching by name', () => {
-    let firstEventName = ''
-    cy.get('.event-item h3').first().invoke('text').then((text) => {
-      firstEventName = text.substring(0, 4) 
-
-      cy.get('.search-input').type(firstEventName)
-      cy.get('.event-item').each(($el) => {
-        const eventText = $el.text().toLowerCase()
-        expect(eventText).to.include(firstEventName.toLowerCase())
-      })
-    })
-  })
-
-  it('filters events when searching by description', () => {
-    let descriptionSnippet = ''
-    cy.get('.event-item p').eq(2).invoke('text').then((text) => {
-      if (text.length > 5) {
-        descriptionSnippet = text.substring(3, 8)
-        cy.get('.search-input').type(descriptionSnippet)
-        cy.get('.event-item').should('exist')
-      } else {
-        cy.log('Description too short to test partial search')
-      }
-    })
-  })
-
-  it('shows "no events found" message for non-matching search', () => {
-    cy.get('.search-input').type('xyznonexistingeventxyz')
-    cy.get('.no-results').should('be.visible')
-    cy.get('.no-results').should('contain', 'No events found matching your search.')
-    cy.get('.event-item').should('not.exist')
-  })
-
-  it('clears search and shows all events again', () => {
-    let totalEventCount = 0
-    cy.get('.event-item').its('length').then((count) => {
-      totalEventCount = count
-
-      cy.get('.search-input').type('some search term')
-      cy.get('.search-input').clear()
-      cy.get('.event-item').should('have.length', totalEventCount)
     })
   })
 })

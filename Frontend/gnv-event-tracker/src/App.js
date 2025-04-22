@@ -12,7 +12,6 @@ import AllEvents from './AllEvents';
 import EventDetails from './EventDetails';
 import { UserProvider } from './UserContext';
 import { AuthProvider } from './AuthContext';
-import { NotificationProvider } from './NotificationService';
 import CreateEvent from './CreateEvent';
 import UserProfile from './UserProfile';
 
@@ -23,7 +22,6 @@ function App() {
     <UserProvider>
     <Router>
       <AuthProvider>
-      <NotificationProvider>
       <div>
       <Routes>
           {/* <Route path="/landing/*" element={<LandingPage />} /> */}
@@ -47,7 +45,6 @@ function App() {
           <Route path="/profile/:userId" element={<UserProfile />} />
         </Routes>
       </div>
-      </NotificationProvider>
       </AuthProvider>
     </Router>
     </UserProvider>

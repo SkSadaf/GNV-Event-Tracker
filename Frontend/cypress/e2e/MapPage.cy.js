@@ -4,6 +4,10 @@ describe('Map Page with Real Data', () => {
     cy.visit('http://localhost:3000/map');
   });
 
+  it('should display the map page title', () => {
+    cy.contains('h1', 'Events in Gainesville, Florida').should('be.visible');
+  });
+
   it('should display loading state and then load map', () => {
     cy.contains('Loading events...').should('be.visible');  
     cy.wait('@getEvents', { timeout: 15000 });

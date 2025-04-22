@@ -64,7 +64,7 @@ func main() {
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
-	
+
 	// Add a health check endpoint
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -75,8 +75,8 @@ func main() {
 		log.Println("Waiting before starting scraper...")
 		time.Sleep(10 * time.Second) // Add a delay to let the server start first
 		log.Println("Starting scraper...")
-		// scraper.ScrapeVisitGainesville()
 		scraper.ScrapeGainesvilleSun()
+		scraper.ScrapeVisitGainesville()
 		log.Println("Scraping completed")
 	}()
 
@@ -85,10 +85,10 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	
+
 	addr := "0.0.0.0:" + port
 	log.Println("Starting server on:", addr)
-	
+
 	if err := r.Run(addr); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}

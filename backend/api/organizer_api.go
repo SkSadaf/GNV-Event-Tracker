@@ -18,16 +18,7 @@ func CreateOrganizer(c *gin.Context) {
 		return
 	}
 
-	// Check if an organizer with the same email already exists
-	var existing data.Organizer
-	if err := database.DB.Where("email = ?", organizer.Email).First(&existing).Error; err == nil {
-		c.JSON(http.StatusConflict, gin.H{
-			"error": "Organizer with this email already exists",
-		})
-		return
-	}
-
-	// Create the organizer if no duplicate
+	// Create the organizer
 	if err := database.DB.Create(&organizer).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create organizer"})
 		return
