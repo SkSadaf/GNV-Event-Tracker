@@ -6,10 +6,9 @@ import (
 	"backend/database"
 	"backend/scraper"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"sync"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -21,21 +20,14 @@ func main() {
 		panic("Failed to connect to database")
 	}
 
-	// Create a wait group to synchronize server start
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	// Create a channel to signal server start
-	serverStarted := make(chan bool)
-
 	// Prepare the router
 	r := gin.Default()
 
 	// CORS configuration
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Replace with your frontend origin
+		AllowOrigins:     []string{"*"}, // Allow all origins for deployment
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Content-Type"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "Origin", "Connection", "Upgrade"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * 3600, // Cache preflight response for 12 hours
@@ -67,51 +59,39 @@ func main() {
 	r.POST("/events/:id/comments", api.AddCommentToEvent)
 	r.GET("/events/:event_id/GetAllComments", api.GetAllComments)
 	r.GET("/event/:event_id/users", api.GetUsersByEvent)
+	r.GET("/ws", api.WebSocketHandler)
+	r.GET("/event/:event_id/weather", api.GetWeatherByEventID)
 
 	// SQLite version
 	r.GET("/sqlite-version", getSQLiteVersion)
 
-	// Determine port
+	// Add a health check endpoint
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	// Start scraper in the background
+	go func() {
+		log.Println("Waiting before starting scraper...")
+		time.Sleep(10 * time.Second) // Add a delay to let the server start first
+		log.Println("Starting scraper...")
+		scraper.ScrapeGainesvilleSun()
+		scraper.ScrapeVisitGainesville()
+		log.Println("Scraping completed")
+	}()
+
+	// Determine port and start server (this will block until the server stops)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	log.Println("Server running on port:", port)
 
-	// Start the server in a goroutine
-	go func() {
-		defer wg.Done()
-		log.Println("Starting server on port:", port)
+	addr := "0.0.0.0:" + port
+	log.Println("Starting server on:", addr)
 
-		// Create a listener
-		listener, err := net.Listen("tcp", ":"+port)
-		if err != nil {
-			log.Fatalf("Failed to create listener: %v", err)
-		}
-
-		// Signal that server is ready
-		close(serverStarted)
-
-		// Serve using the listener
-		if err := r.RunListener(listener); err != nil {
-			log.Fatalf("Server failed to start: %v", err)
-		}
-	}()
-
-	// Wait for server to start
-	<-serverStarted
-	log.Println("Server is now running")
-
-	// Start scraper after the server begins running
-	go func() {
-		log.Println("Starting scraper...")
-		// scraper.ScrapeVisitGainesville()
-		scraper.ScrapeGainesvilleSun()
-		log.Println("Scraping completed")
-	}()
-
-	// Wait for server to completely finish
-	wg.Wait()
+	if err := r.Run(addr); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
 
 func getSQLiteVersion(c *gin.Context) {
