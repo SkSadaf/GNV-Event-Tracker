@@ -19,6 +19,10 @@
   <li>Duplicate email check added for create organizer API</li>
   <li>Populate latitude longitude updated for different formats of location strings for scraped events</li>
   <li>Added and modified golang test cases</li>
+  <li>Scraped event organizer info: names, emails, phone numbers</li>
+  <li>Scraped image URLs for events</li>
+  <li>Scraped event website and ticket URLs</li>
+  <li>Updated ScrapeVisitGainesville() to match ScrapeGainesvilleSun() functionality</li>
   
 
 </ul>
