@@ -36,7 +36,7 @@
 ### Cypress e2e tests
 1. cd Frontend
 2. npx cypress open
-3. Go to the e2e testing upon cypress window opening
+3. Go to the e2e testing upon cypress window opening, select any of the browser options among the ones that are displayed.
 4. Click on the test you want to run
 
 ## Backend server
