@@ -187,58 +187,90 @@ func PopulateLatLng(event *data.Event) error {
 	// Set Gominatim server
 	gominatim.SetServer("https://nominatim.openstreetmap.org/")
 
-	qry := gominatim.SearchQuery{
-		Q: event.Location,
+	originalLocation := event.Location
+	query := gominatim.SearchQuery{Q: originalLocation}
+
+	// Helper function to get lat/lng from query
+	getLatLng := func(query gominatim.SearchQuery) (*gominatim.SearchResult, error) {
+		results, err := query.Get()
+		if err != nil || len(results) == 0 {
+			return nil, err
+		}
+		return &results[0], nil
 	}
 
-	// Perform the geocoding
-	resp, err := qry.Get()
-	if err != nil {
-		log.Printf("Failed to geocode location for event ID %d: %v\n", event.ID, err)
+	// Determine the first character of location
+	firstChar := strings.TrimSpace(originalLocation)
+	if firstChar == "" {
+		return fmt.Errorf("location string is empty")
+	}
+	firstRune := []rune(firstChar)[0]
 
-		// Attempt to remove the name and geocode again
-		modifiedLocation := removeNameFromLocation(event.Location)
-		if modifiedLocation != "" {
-			qry = gominatim.SearchQuery{Q: modifiedLocation}
-			resp, err = qry.Get()
-			if err != nil {
-				log.Printf("Failed to geocode modified location for event ID %d: %v\n", event.ID, err)
-				return err
+	var result *gominatim.SearchResult
+	var err error
+
+	// Case 1: Starts with a letter
+	if (firstRune >= 'A' && firstRune <= 'Z') || (firstRune >= 'a' && firstRune <= 'z') {
+		result, err = getLatLng(query)
+
+		// If no result, try removing name part (fall back to numeric section)
+		if err != nil || result == nil {
+			modified := removeNameFromLocation(originalLocation)
+			if modified != "" {
+				query = gominatim.SearchQuery{Q: modified}
+				result, err = getLatLng(query)
 			}
-		} else {
-			return err
-		}
-	}
-
-	// Update latitude and longitude if results are found
-	if len(resp) > 0 {
-		lat, err := strconv.ParseFloat(resp[0].Lat, 64)
-		if err != nil {
-			log.Printf("Error converting latitude for event ID %d: %v\n", event.ID, err)
-			return err
-		}
-
-		lng, err := strconv.ParseFloat(resp[0].Lon, 64)
-		if err != nil {
-			log.Printf("Error converting longitude for event ID %d: %v\n", event.ID, err)
-			return err
-		}
-
-		event.Latitude = lat
-		event.Longitude = lng
-
-		if err := database.DB.Save(event).Error; err != nil {
-			log.Printf("Failed to update event ID %d: %v\n", event.ID, err)
-			return err
-		} else {
-			fmt.Printf("Updated event ID %d: (%f, %f)\n", event.ID, event.Latitude, event.Longitude)
 		}
 	} else {
-		log.Printf("No geocoding results found for event ID %d\n", event.ID)
-		return fmt.Errorf("no geocoding results found")
+		// Case 2: Starts with number
+		result, err = getLatLng(query)
+
+		// If no result, try truncating at "United States" or equivalent
+		if err != nil || result == nil {
+			truncated := truncateAtCountry(originalLocation)
+			if truncated != "" {
+				query = gominatim.SearchQuery{Q: truncated}
+				result, err = getLatLng(query)
+			}
+		}
 	}
 
+	if err != nil || result == nil {
+		log.Printf("No geocoding results found for event ID %d, location: %s\n", event.ID, originalLocation)
+		return fmt.Errorf("no geocoding results found for location: %s", originalLocation)
+	}
+
+	// Convert strings to floats
+	lat, err := strconv.ParseFloat(result.Lat, 64)
+	if err != nil {
+		return fmt.Errorf("error parsing latitude: %v", err)
+	}
+	lng, err := strconv.ParseFloat(result.Lon, 64)
+	if err != nil {
+		return fmt.Errorf("error parsing longitude: %v", err)
+	}
+
+	// Update event with lat/lng
+	event.Latitude = lat
+	event.Longitude = lng
+
+	if err := database.DB.Save(event).Error; err != nil {
+		log.Printf("Failed to update event ID %d: %v\n", event.ID, err)
+		return err
+	}
+	fmt.Printf("Updated event ID %d with lat/lng: (%f, %f)\n", event.ID, lat, lng)
+
 	return nil
+}
+
+func truncateAtCountry(location string) string {
+	countries := []string{"United States", "USA", "US", "Canada", "UK", "United Kingdom"}
+	for _, country := range countries {
+		if idx := strings.Index(location, country); idx != -1 {
+			return strings.TrimSpace(location[:idx])
+		}
+	}
+	return ""
 }
 
 func ScrapeVisitGainesville() {
