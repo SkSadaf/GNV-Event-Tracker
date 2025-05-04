@@ -9,10 +9,10 @@
 
 
 # Team Members
-- **Sadaf Tabassum Shaik** (UFID: 88489948) - Frontend
-- **Sparsh Rathi** (UFID: 34225674) - Frontend
-- **Rishma Manna** (UFID: 53560448) - Backend
-- **Aria Yousefi** (UFID: 27514943) - Backend
+- **Sadaf Tabassum Shaik** - Frontend
+- **Sparsh Rathi** - Frontend
+- **Rishma Manna** - Backend
+- **Aria Yousefi** - Backend
 
 
 # Tech Stack
